@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>八字六合彩 · 時空合盤</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page-wrap">
+    <header class="site-header">
+      <div class="header-inner">
+        <h1 class="site-title">八字六合彩 · 時空合盤</h1>
+        <p class="site-subtitle">真太陽時 · 喜用神 · 號碼矩陣</p>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="panel input-panel">
+        <div class="panel-head">
+          <h2>輸入參數</h2>
+        </div>
+        <form id="predict-form" class="form">
+          <div class="form-row two-cols">
+            <div class="col">
+              <label for="birth-date">出生日期</label>
+              <input type="date" id="birth-date" name="birth_date" required />
+            </div>
+            <div class="col">
+              <label for="birth-time">出生時間（24h）</label>
+              <div class="time-split">
+                <input
+                  type="number"
+                  id="birth-hour"
+                  name="birth_hour"
+                  inputmode="numeric"
+                  min="0"
+                  max="23"
+                  placeholder="HH"
+                  aria-label="小時 00-23"
+                  required
+                />
+                <span class="time-sep">:</span>
+                <input
+                  type="number"
+                  id="birth-minute"
+                  name="birth_minute"
+                  inputmode="numeric"
+                  min="0"
+                  max="59"
+                  placeholder="MM"
+                  aria-label="分鐘 00-59"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="birth-location">出生地點</label>
+            <input type="text" id="birth-location" name="birth_location" placeholder="城市名稱或經緯度" required />
+          </div>
+          <div class="form-row">
+            <label>當前時間</label>
+            <div class="current-time-group two-cols">
+              <div class="col">
+                <input type="date" id="current-date" name="current_date" />
+              </div>
+              <div class="col time-col">
+                <div class="time-split">
+                  <input
+                    type="number"
+                    id="current-hour"
+                    name="current_hour"
+                    inputmode="numeric"
+                    min="0"
+                    max="23"
+                    placeholder="HH"
+                    aria-label="當前小時 00-23"
+                  />
+                  <span class="time-sep">:</span>
+                  <input
+                    type="number"
+                    id="current-minute"
+                    name="current_minute"
+                    inputmode="numeric"
+                    min="0"
+                    max="59"
+                    placeholder="MM"
+                    aria-label="當前分鐘 00-59"
+                  />
+                </div>
+              </div>
+              <button type="button" id="use-now" class="btn btn-ghost">使用現在</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>初選號碼（六合彩 1–49，每組 6 個）</label>
+            <div class="number-inputs" id="initial-numbers">
+              <input type="number" min="1" max="49" placeholder="1" data-idx="0" />
+              <input type="number" min="1" max="49" placeholder="2" data-idx="1" />
+              <input type="number" min="1" max="49" placeholder="3" data-idx="2" />
+              <input type="number" min="1" max="49" placeholder="4" data-idx="3" />
+              <input type="number" min="1" max="49" placeholder="5" data-idx="4" />
+              <input type="number" min="1" max="49" placeholder="6" data-idx="5" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">起盤推算</button>
+            <button type="reset" class="btn btn-ghost">清空</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel results-panel hidden" id="results-panel">
+        <div class="panel-head">
+          <h2>合盤結果</h2>
+        </div>
+        <div id="results-content" class="results-content">
+          <!-- Filled by JS -->
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>僅供娛樂參考 · 理性投注</p>
+    </footer>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

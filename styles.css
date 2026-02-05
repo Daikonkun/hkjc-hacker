@@ -1,0 +1,446 @@
+/* 新中式 · 六合彩 主題 */
+:root {
+  --bg-dark: #1a1410;
+  --bg-panel: #241c17;
+  --bg-input: #2d231c;
+  --wood: #3d2e24;
+  --border: #4a3930;
+  --gold: #c9a227;
+  --gold-light: #e8d48b;
+  --red: #a62b2b;
+  --red-light: #c94a4a;
+  --red-soft: #8b3a3a;
+  --ink: #e8e0d8;
+  --ink-muted: #a09890;
+  --serif: "Noto Serif SC", "Source Han Serif SC", serif;
+  --sans: "Noto Sans SC", "PingFang SC", sans-serif;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --radius: 6px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--bg-dark);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* 背景紋理：雲紋/格柵感 */
+.page-wrap {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(166, 43, 43, 0.08) 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg-dark) 0%, #221a14 100%);
+  position: relative;
+}
+
+.page-wrap::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 60px,
+      rgba(201, 162, 39, 0.03) 60px,
+      rgba(201, 162, 39, 0.03) 61px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 60px,
+      rgba(201, 162, 39, 0.03) 60px,
+      rgba(201, 162, 39, 0.03) 61px
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Header */
+.site-header {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(61, 46, 36, 0.6) 0%, transparent 100%);
+  position: relative;
+  z-index: 1;
+}
+
+.header-inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.site-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  color: var(--gold-light);
+  margin: 0 0 0.25rem 0;
+  letter-spacing: 0.08em;
+}
+
+.site-subtitle {
+  font-size: 0.9rem;
+  color: var(--ink-muted);
+  margin: 0;
+  font-weight: 300;
+}
+
+/* Main */
+.main-content {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Panel */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.panel-head {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(61, 46, 36, 0.5);
+}
+
+.panel-head h2 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--gold);
+  margin: 0;
+}
+
+/* Form */
+.form {
+  padding: 1.5rem 1.25rem;
+}
+
+.form-row {
+  margin-bottom: 1.25rem;
+}
+
+.form-row:last-of-type {
+  margin-bottom: 0;
+}
+
+.form-row label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+  margin-bottom: 0.4rem;
+}
+
+.form-row input[type="text"],
+.form-row input[type="number"],
+.form-row input[type="datetime-local"],
+.form-row input[type="date"],
+.form-row input[type="time"] {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-row input::placeholder {
+  color: var(--ink-muted);
+  opacity: 0.8;
+}
+
+.form-row input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.2);
+}
+
+.current-time-group {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.current-time-group input {
+  flex: 1;
+}
+
+.time-split {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.time-split input {
+  width: 64px;
+  padding: 0.55rem 0.65rem;
+  text-align: center;
+}
+
+.time-sep {
+  color: var(--ink-muted);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.two-cols {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.two-cols .col {
+  flex: 1;
+  min-width: 140px;
+}
+
+.two-cols .time-col {
+  min-width: 150px;
+}
+
+.number-inputs {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.5rem;
+}
+
+.number-inputs input {
+  text-align: center;
+  font-weight: 500;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Buttons */
+.btn {
+  padding: 0.6rem 1.2rem;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.btn-primary {
+  background: var(--red);
+  color: var(--gold-light);
+  border-color: var(--red-soft);
+}
+
+.btn-primary:hover {
+  background: var(--red-light);
+  color: #fff;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-muted);
+  border-color: var(--border);
+}
+
+.btn-ghost:hover {
+  color: var(--ink);
+  border-color: var(--gold);
+}
+
+.current-time-group .btn {
+  height: 100%;
+  white-space: nowrap;
+}
+
+/* Results */
+.results-panel {
+  margin-top: 2rem;
+}
+
+.results-panel.hidden {
+  display: none;
+}
+
+.results-content {
+  padding: 1.25rem 1.25rem 1.5rem;
+}
+
+.result-section {
+  margin-bottom: 1.5rem;
+}
+
+.result-section:last-child {
+  margin-bottom: 0;
+}
+
+.result-section h3 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--gold);
+  margin: 0 0 0.5rem 0;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.result-section p,
+.result-section ul {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+.result-section ul {
+  padding-left: 1.25rem;
+}
+
+.result-section li {
+  margin-bottom: 0.25rem;
+}
+
+/* 核心幸運號 · 大號碼展示 */
+.core-numbers {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.core-num {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 1.35rem;
+  color: var(--gold-light);
+  background: var(--red-soft);
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* 注號矩陣：每組 6 個號 */
+.bet-group {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.bet-group:last-child {
+  margin-bottom: 0;
+}
+
+.bet-group-title {
+  font-size: 0.8rem;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+
+.bet-numbers {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.bet-num {
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--wood);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.bet-group-desc {
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  margin-top: 0.4rem;
+}
+
+/* 策略區塊 */
+.strategy-box {
+  background: rgba(166, 43, 43, 0.15);
+  border: 1px solid var(--red-soft);
+  border-radius: 4px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+
+.strategy-box p {
+  margin: 0.25rem 0;
+}
+
+/* Footer */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  position: relative;
+  z-index: 1;
+}
+
+/* 載入狀態 */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .number-inputs {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .two-cols {
+    flex-direction: column;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

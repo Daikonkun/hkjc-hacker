@@ -1,0 +1,12 @@
+{
+  "name": "hkjc-bazi-predictor",
+  "version": "1.0.0",
+  "description": "八字六合彩時空合盤 - Vercel 靜態前端 + Serverless API",
+  "scripts": {
+    "dev": "vercel dev",
+    "lint": "echo \"no lint configured\""
+  },
+  "keywords": ["bazi", "lottery", "prediction"],
+  "author": "",
+  "license": "ISC"
+}
