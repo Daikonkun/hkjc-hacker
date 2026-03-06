@@ -53,7 +53,7 @@ function buildSystemPrompt() {
     null,
     2
   );
-  prompt += '\n每組 bet_groups 必須包含 energy_score（0-100 的整數），表示該組號碼與用戶命局及流時的能量契合度。';
+  prompt += '\nbet_groups 必須恰好包含 5 組（五組推薦注號），每組 6 個號碼，每組必須包含 energy_score（0-100 的整數），表示該組號碼與用戶命局及流時的能量契合度。';
   prompt += '\n若用戶提供了開獎時刻，可結合梅花易數體卦五行（乾兌金、離火、震巽木、坎水、艮坤土），對與體卦相同或被體卦所克（財）的號碼給予更高評價。';
   prompt += '\n同時結合奇門遁甲時家排盤的「生門」落宮位置，對該宮位對應尾數的號碼進行空間能量加權。';
 
@@ -231,6 +231,16 @@ module.exports = async function handler(req, res) {
     const tiWuxing = hexagram && hexagram.ti_gua ? hexagram.ti_gua.wuxing : null;
     const dayElement = hexagram && hexagram.day_element ? hexagram.day_element : null;
     const userElement = result.user_element || null;
+
+    while (result.bet_groups.length < 5) {
+      var padNums = result.core_numbers.slice();
+      var used = new Set(padNums);
+      while (padNums.length < 6) {
+        var candidate = Math.floor(Math.random() * 49) + 1;
+        if (!used.has(candidate)) { padNums.push(candidate); used.add(candidate); }
+      }
+      result.bet_groups.push({ numbers: padNums.sort((a, b) => a - b), desc: '系統自動補足組合。', energy_score: 60 });
+    }
 
     result.bet_groups = result.bet_groups.slice(0, 5).map((group) => {
       const nums = normalizeNumbers(group.numbers, result.core_numbers);
