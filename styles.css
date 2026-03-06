@@ -898,7 +898,7 @@ body {
   }
 
   .form {
-    padding: 1.15rem 1rem;
+    padding: 1.15rem 1.25rem;
   }
 
   .site-title {
@@ -926,14 +926,15 @@ body {
     gap: 0.5rem;
   }
 
-  .current-time-group .col {
-    min-width: 0;
-    width: 100%;
-  }
-
+  .current-time-group .col,
   .current-time-group .time-col {
     min-width: 0;
     width: 100%;
+    max-width: 100%;
+  }
+
+  .current-time-group .col input[type="date"] {
+    max-width: 100%;
   }
 
   .current-time-group .btn {
@@ -983,7 +984,7 @@ body {
   /* 面板內表單 */
   .hexagram-form,
   .qimen-panel .hexagram-form {
-    padding: 0.85rem 1rem;
+    padding: 0.85rem 1.25rem;
   }
 
   /* 結果區域 */
