@@ -481,58 +481,152 @@
     resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  // ─── 能量推演儀式 ───
+  var RITUAL_STEPS = [
+    { text: '正在推演萬年曆，校準干支時空能量基準…', icon: '曆', color: '#5b9bd5' },
+    { text: '起梅花易數卦，體用生克感應中… 當期能量場已鎖定。', icon: '卦', color: '#6bc46d' },
+    { text: '撥動奇門遁甲盤，正在定位生門方位與空間動能…', icon: '門', color: '#c9a227' },
+    { text: '調取近 50 期開獎波動，正在執行「物極必反」陰陽平衡校驗…', icon: '陰陽', color: '#4ec9c9' },
+    { text: '融合個人八字喜用神，正在捕捉共振頻率最高的數字組合…', icon: '數', color: '#c94a4a' },
+  ];
+  var STEP_DURATION = 1800;
+  var MIN_CEREMONY_MS = RITUAL_STEPS.length * STEP_DURATION;
+  var CIRCUMFERENCE = 2 * Math.PI * 54;
+
+  var overlayEl = document.getElementById('ritual-overlay');
+  var particlesEl = document.getElementById('ritual-particles');
+  var ringFgEl = document.getElementById('ritual-ring-fg');
+  var ritualTextEl = document.getElementById('ritual-text');
+  var ritualIconEl = document.getElementById('ritual-icon');
+  var ritualStepLabel = document.getElementById('ritual-step-label');
+
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  function spawnParticles() {
+    particlesEl.innerHTML = '';
+    for (var i = 0; i < 45; i++) {
+      var dot = document.createElement('span');
+      dot.className = 'ritual-particle';
+      var size = 1 + Math.random() * 2.5;
+      var left = Math.random() * 100;
+      var dur = 6 + Math.random() * 10;
+      var delay = Math.random() * 8;
+      var opacity = 0.15 + Math.random() * 0.45;
+      dot.style.cssText = 'width:' + size + 'px;height:' + size + 'px;'
+        + 'left:' + left + '%;bottom:-4px;'
+        + 'animation-duration:' + dur + 's;'
+        + 'animation-delay:' + delay + 's;'
+        + 'opacity:' + opacity + ';';
+      particlesEl.appendChild(dot);
+    }
+  }
+
+  function showOverlay() {
+    spawnParticles();
+    overlayEl.classList.remove('hidden', 'fade-out');
+    ringFgEl.style.strokeDashoffset = CIRCUMFERENCE;
+    ritualTextEl.classList.remove('visible');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hideOverlay() {
+    overlayEl.classList.add('fade-out');
+    document.body.style.overflow = '';
+    setTimeout(function () {
+      overlayEl.classList.add('hidden');
+      overlayEl.classList.remove('fade-out');
+      particlesEl.innerHTML = '';
+    }, 650);
+  }
+
+  async function updateStep(idx) {
+    var step = RITUAL_STEPS[idx];
+    ritualTextEl.classList.remove('visible');
+    await sleep(300);
+    ritualTextEl.textContent = step.text;
+    ritualIconEl.textContent = step.icon;
+    ringFgEl.style.stroke = step.color;
+    var progress = (idx + 1) / RITUAL_STEPS.length;
+    ringFgEl.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
+    ritualStepLabel.textContent = (idx + 1) + ' / ' + RITUAL_STEPS.length;
+    ritualTextEl.classList.add('visible');
+  }
+
+  async function runCeremony(apiPromise) {
+    var startTime = Date.now();
+    var apiDone = false;
+    apiPromise.finally(function () { apiDone = true; });
+
+    var idx = 0;
+    while (true) {
+      await updateStep(idx % RITUAL_STEPS.length);
+      await sleep(STEP_DURATION);
+      idx++;
+      var elapsed = Date.now() - startTime;
+      if (idx >= RITUAL_STEPS.length && apiDone && elapsed >= MIN_CEREMONY_MS) break;
+    }
+
+    ritualTextEl.classList.remove('visible');
+    await sleep(250);
+    ritualTextEl.textContent = '能量推演完成';
+    ritualTextEl.classList.add('visible', 'ritual-complete-flash');
+    ringFgEl.style.strokeDashoffset = '0';
+    ritualStepLabel.textContent = '';
+    await sleep(800);
+  }
+
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
-    const data = getFormData();
+    var data = getFormData();
 
-    form.classList.add('loading');
-    resultsContent.innerHTML = '<p style="color: var(--ink-muted);">正在推算…</p>';
-    resultsPanel.classList.remove('hidden');
+    showOverlay();
+    resultsPanel.classList.add('hidden');
 
-    try {
-      // 調用真實 API
-      const response = await fetch('/api/predict', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-
+    var apiResult = null;
+    var apiError = null;
+    var apiPromise = fetch('/api/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }).then(function (response) {
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: '請求失敗' }));
-        throw new Error(errorData.error || errorData.message || `HTTP ${response.status}`);
+        return response.json().catch(function () { return {}; }).then(function (d) {
+          throw new Error(d.error || d.message || 'HTTP ' + response.status);
+        });
       }
+      return response.json();
+    }).then(function (r) {
+      apiResult = r;
+    }).catch(function (err) {
+      apiError = err;
+    });
 
-      const result = await response.json();
-      renderResults(data, result);
-    } catch (error) {
-      console.error('預測錯誤:', error);
-      let errorMsg = error.message || '未知錯誤';
-      let helpMsg = '';
-      
-      // 根據錯誤類型提供更詳細的提示
-      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+    await runCeremony(apiPromise);
+    hideOverlay();
+    await sleep(700);
+
+    if (apiError) {
+      var errorMsg = apiError.message || '未知錯誤';
+      var helpMsg = '';
+      if (errorMsg.indexOf('Failed to fetch') >= 0 || errorMsg.indexOf('NetworkError') >= 0) {
         errorMsg = '無法連接到服務器';
-        helpMsg = '請確保後端服務器正在運行（運行 npm start）';
-      } else if (error.message.includes('XAI_API_KEY')) {
-        errorMsg = error.message;
-        helpMsg = '請檢查 .env 文件中的 XAI_API_KEY 配置';
-      } else if (error.message.includes('xAI API')) {
-        errorMsg = error.message;
-        helpMsg = '請檢查 API Key 是否正確，或查看服務器日誌獲取詳細信息';
+        helpMsg = '請確保後端服務器正在運行';
+      } else if (errorMsg.indexOf('XAI_API_KEY') >= 0) {
+        helpMsg = '請檢查環境變量中的 XAI_API_KEY 配置';
+      } else if (errorMsg.indexOf('xAI API') >= 0) {
+        helpMsg = '請檢查 API Key 是否正確';
       } else {
-        helpMsg = '請查看瀏覽器控制台和服務器日誌獲取詳細信息';
+        helpMsg = '請查看瀏覽器控制台獲取詳細信息';
       }
-      
-      resultsContent.innerHTML = 
+      resultsContent.innerHTML =
         '<div class="result-section">' +
         '<h3 style="color: var(--red-light);">錯誤</h3>' +
         '<p style="color: var(--ink-muted);">' + errorMsg + '</p>' +
         (helpMsg ? '<p style="color: var(--ink-muted); font-size: 0.85rem; margin-top: 0.5rem;">' + helpMsg + '</p>' : '') +
         '</div>';
-    } finally {
-      form.classList.remove('loading');
+      resultsPanel.classList.remove('hidden');
+    } else if (apiResult) {
+      renderResults(data, apiResult);
     }
   });
 

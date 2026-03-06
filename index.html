@@ -10,6 +10,18 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div id="ritual-overlay" class="ritual-overlay hidden">
+    <div class="ritual-particles" id="ritual-particles"></div>
+    <div class="ritual-center">
+      <svg class="ritual-ring" viewBox="0 0 120 120">
+        <circle class="ritual-ring-bg" cx="60" cy="60" r="54" />
+        <circle class="ritual-ring-fg" id="ritual-ring-fg" cx="60" cy="60" r="54" />
+      </svg>
+      <div class="ritual-icon" id="ritual-icon">卦</div>
+      <p class="ritual-text" id="ritual-text"></p>
+      <p class="ritual-step" id="ritual-step-label"></p>
+    </div>
+  </div>
   <div class="page-wrap">
     <header class="site-header">
       <div class="header-inner">
