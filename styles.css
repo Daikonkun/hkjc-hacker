@@ -416,6 +416,50 @@ body {
   margin-top: 0.4rem;
 }
 
+/* 梅花易數起卦 */
+.hexagram-panel {
+  margin-bottom: 2rem;
+}
+
+.hexagram-form {
+  padding: 1rem 1.25rem;
+}
+
+.hexagram-form .form-row {
+  margin-bottom: 0.75rem;
+}
+
+.hexagram-form .btn {
+  margin-top: 0.5rem;
+}
+
+.hex-result {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.hex-result.hidden {
+  display: none;
+}
+
+.hex-result-inner p {
+  margin: 0.35rem 0;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+.hex-error {
+  color: var(--red-light);
+  font-size: 0.9rem;
+}
+
+.hexagram-section .hex-result-inner {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.85rem 1rem;
+}
+
 /* 策略區塊 */
 .strategy-box {
   background: rgba(166, 43, 43, 0.15);

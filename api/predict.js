@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { computeHexagram, getDivinationScore } = require('../lib/hexagram.js');
 
 let promptConfigCache = null;
 
@@ -45,6 +46,7 @@ function buildSystemPrompt() {
     2
   );
   prompt += '\n每組 bet_groups 必須包含 energy_score（0-100 的整數），表示該組號碼與用戶命局及流時的能量契合度。';
+  prompt += '\n若用戶提供了開獎時刻，可結合梅花易數體卦五行（乾兌金、離火、震巽木、坎水、艮坤土），對與體卦相同或被體卦所克（財）的號碼給予更高評價。';
 
   return prompt;
 }
@@ -63,6 +65,9 @@ function buildUserPrompt(data) {
     prompt += `初選號碼：未提供\n`;
   }
 
+  if (data.draw_datetime) {
+    prompt += `\n開獎時刻（梅花易數起卦用）：${data.draw_datetime}`;
+  }
   prompt += `\n請按照系統提示的步驟進行完整分析，並返回符合格式要求的 JSON。`;
 
   return prompt;
@@ -159,7 +164,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { birth_time, birth_location, current_time, initial_numbers } = req.body || {};
+    const { birth_time, birth_location, current_time, initial_numbers, draw_datetime } = req.body || {};
 
     if (!birth_time || !birth_location) {
       return res
@@ -171,15 +176,24 @@ module.exports = async function handler(req, res) {
       ? initial_numbers.filter((n) => n > 0 && n <= 49).slice(0, 6)
       : [];
 
+    let hexagram = null;
+    if (draw_datetime) {
+      hexagram = computeHexagram(draw_datetime);
+      if (hexagram.error) hexagram = null;
+    }
+
     const userPrompt = buildUserPrompt({
       birth_time,
       birth_location,
       current_time: current_time || new Date().toISOString().slice(0, 16).replace('T', ' '),
       initial_numbers: numbers,
+      draw_datetime: draw_datetime || undefined,
     });
 
     const aiResponse = await callXAI(userPrompt);
     const result = parseAIResponse(aiResponse);
+
+    if (hexagram) result.hexagram = hexagram;
 
     if (!result.core_numbers || !Array.isArray(result.core_numbers)) {
       result.core_numbers = result.core_numbers || [13, 18, 24];
@@ -193,6 +207,7 @@ module.exports = async function handler(req, res) {
       result.bet_groups = [];
     }
     const coreSet = new Set(result.core_numbers);
+    const tiWuxing = hexagram && hexagram.ti_gua ? hexagram.ti_gua.wuxing : null;
     result.bet_groups = result.bet_groups.slice(0, 5).map((group) => {
       const nums = normalizeNumbers(group.numbers, result.core_numbers);
       let energyScore = typeof group.energy_score === 'number' && group.energy_score >= 0 && group.energy_score <= 100
@@ -201,6 +216,10 @@ module.exports = async function handler(req, res) {
       if (energyScore === null) {
         const overlap = nums.filter((n) => coreSet.has(n)).length;
         energyScore = Math.min(100, 55 + overlap * 15);
+      }
+      if (tiWuxing && nums.length > 0) {
+        const divScore = nums.reduce((s, n) => s * getDivinationScore(n, tiWuxing), 1);
+        energyScore = Math.min(100, Math.round(energyScore * divScore));
       }
       return { numbers: nums, desc: group.desc || '', energy_score: energyScore };
     });

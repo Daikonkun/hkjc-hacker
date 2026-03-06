@@ -11,7 +11,16 @@
   const currentDateInput = document.getElementById('current-date');
   const currentHourInput = document.getElementById('current-hour');
   const currentMinuteInput = document.getElementById('current-minute');
+  const drawDateInput = document.getElementById('draw-date');
+  const drawHourInput = document.getElementById('draw-hour');
+  const drawMinuteInput = document.getElementById('draw-minute');
   const initialNumbersContainer = document.getElementById('initial-numbers');
+  const hexDrawDateInput = document.getElementById('hex-draw-date');
+  const hexDrawHourInput = document.getElementById('hex-draw-hour');
+  const hexDrawMinuteInput = document.getElementById('hex-draw-minute');
+  const hexSubmitBtn = document.getElementById('hex-submit');
+  const hexUseNowBtn = document.getElementById('hex-use-now');
+  const hexResultEl = document.getElementById('hex-result');
 
   function clampNumberInput(input, min, max) {
     input.addEventListener('change', function () {
@@ -27,10 +36,10 @@
   }
 
   // 限制小時/分鐘輸入
-  [birthHourInput, currentHourInput].forEach(function (el) {
+  [birthHourInput, currentHourInput, drawHourInput, hexDrawHourInput].forEach(function (el) {
     if (el) clampNumberInput(el, 0, 23);
   });
-  [birthMinuteInput, currentMinuteInput].forEach(function (el) {
+  [birthMinuteInput, currentMinuteInput, drawMinuteInput, hexDrawMinuteInput].forEach(function (el) {
     if (el) clampNumberInput(el, 0, 59);
   });
 
@@ -54,6 +63,35 @@
     if (currentHourInput) currentHourInput.value = hours;
     if (currentMinuteInput) currentMinuteInput.value = mins;
   });
+
+  const useDrawNowBtn = document.getElementById('use-draw-now');
+  if (useDrawNowBtn) {
+    useDrawNowBtn.addEventListener('click', function () {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const mins = String(now.getMinutes()).padStart(2, '0');
+      if (drawDateInput) drawDateInput.value = `${year}-${month}-${day}`;
+      if (drawHourInput) drawHourInput.value = hours;
+      if (drawMinuteInput) drawMinuteInput.value = mins;
+    });
+  }
+
+  if (hexUseNowBtn) {
+    hexUseNowBtn.addEventListener('click', function () {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const mins = String(now.getMinutes()).padStart(2, '0');
+      if (hexDrawDateInput) hexDrawDateInput.value = `${year}-${month}-${day}`;
+      if (hexDrawHourInput) hexDrawHourInput.value = hours;
+      if (hexDrawMinuteInput) hexDrawMinuteInput.value = mins;
+    });
+  }
 
   // 號碼輸入限制 1–49
   initialNumbersContainer.querySelectorAll('input[type="number"]').forEach(function (input) {
@@ -89,11 +127,16 @@
 
     const birthDateTime = combineDateTime(birthDate, birthTime);
     const currentDateTime = combineDateTime(currentDate, currentTime);
+    const drawDateTime = combineDateTime(
+      drawDateInput ? drawDateInput.value : '',
+      normalizeTimeParts(drawHourInput ? drawHourInput.value : '', drawMinuteInput ? drawMinuteInput.value : '')
+    );
 
     return {
       birth_time: birthDateTime,
       birth_location: birthLocation,
       current_time: currentDateTime || 'Now',
+      draw_datetime: drawDateTime || undefined,
       initial_numbers: initialNumbers.length >= 6 ? initialNumbers.slice(0, 6) : [0, 0, 0, 0, 0, 0]
     };
   }
@@ -134,9 +177,66 @@
     };
   }
 
+  function renderHexResult(h) {
+    if (!h || h.error) {
+      hexResultEl.innerHTML = '<p class="hex-error">' + (h ? h.error : '請輸入開獎時刻') + '</p>';
+      hexResultEl.classList.remove('hidden');
+      return;
+    }
+    let html = '<div class="hex-result-inner">';
+    html += '<p><strong>開獎時刻：</strong>' + (h.draw_datetime || '') + '</p>';
+    html += '<p><strong>農曆：</strong>' + h.lunar.year_zhi + '年 ' + h.lunar.month + '月' + h.lunar.day + '日 ' + h.lunar.time_zhi + '時</p>';
+    html += '<p><strong>上卦：</strong>' + h.upper_gua.name + '（' + h.upper_gua.wuxing + '）</p>';
+    html += '<p><strong>下卦：</strong>' + h.lower_gua.name + '（' + h.lower_gua.wuxing + '）</p>';
+    html += '<p><strong>動爻：</strong>第 ' + h.change_line + ' 爻</p>';
+    html += '<p><strong>體卦：</strong>' + h.ti_gua.name + '（' + h.ti_gua.wuxing + '）</p>';
+    html += '<p><strong>用卦：</strong>' + h.yong_gua.name + '（' + h.yong_gua.wuxing + '）</p>';
+    html += '<p><strong>體用生克：</strong>' + h.relation_label + ' — ' + h.relation_fortune + '</p>';
+    html += '</div>';
+    hexResultEl.innerHTML = html;
+    hexResultEl.classList.remove('hidden');
+  }
+
+  if (hexSubmitBtn) {
+    hexSubmitBtn.addEventListener('click', async function () {
+      const drawDate = hexDrawDateInput ? hexDrawDateInput.value : '';
+      const drawTime = normalizeTimeParts(
+        hexDrawHourInput ? hexDrawHourInput.value : '',
+        hexDrawMinuteInput ? hexDrawMinuteInput.value : ''
+      );
+      const drawDatetime = drawDate && drawTime ? drawDate + ' ' + drawTime : '';
+      if (!drawDatetime) {
+        renderHexResult({ error: '請輸入開獎日期與時間' });
+        return;
+      }
+      try {
+        const res = await fetch('/api/hexagram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ draw_datetime: drawDatetime })
+        });
+        const data = await res.json();
+        if (!res.ok) renderHexResult({ error: data.error || data.message || '請求失敗' });
+        else renderHexResult(data);
+      } catch (e) {
+        renderHexResult({ error: e.message || '無法連接到服務器' });
+      }
+    });
+  }
+
   function renderResults(data, result) {
     const s = result;
     let html = '';
+
+    if (s.hexagram) {
+      const h = s.hexagram;
+      html += '<div class="result-section hexagram-section"><h3>梅花易數 · 時空起卦</h3>';
+      html += '<div class="hex-result-inner">';
+      html += '<p><strong>開獎時刻：</strong>' + (h.draw_datetime || '') + '</p>';
+      html += '<p><strong>體卦：</strong>' + h.ti_gua.name + '（' + h.ti_gua.wuxing + '） · <strong>用卦：</strong>' + h.yong_gua.name + '（' + h.yong_gua.wuxing + '）</p>';
+      html += '<p><strong>體用生克：</strong>' + h.relation_label + ' — ' + h.relation_fortune + '</p>';
+      html += '</div></div>';
+    }
 
     html += '<div class="result-section"><h3>真太陽時修正說明</h3><p>' + (s.solar_time_note || '') + '</p></div>';
     html += '<div class="result-section"><h3>八字喜用神深度分析</h3><p>' + (s.bazi_analysis || '') + '</p></div>';

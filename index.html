@@ -14,7 +14,7 @@
     <header class="site-header">
       <div class="header-inner">
         <h1 class="site-title">八字六合彩 · 時空合盤</h1>
-        <p class="site-subtitle">真太陽時 · 喜用神 · 號碼矩陣</p>
+        <p class="site-subtitle">真太陽時 · 喜用神 · 梅花易數 · 號碼矩陣</p>
       </div>
     </header>
 
@@ -97,6 +97,22 @@
             </div>
           </div>
           <div class="form-row">
+            <label>開獎時刻（可選，用於梅花易數起卦）</label>
+            <div class="current-time-group two-cols">
+              <div class="col">
+                <input type="date" id="draw-date" name="draw_date" />
+              </div>
+              <div class="col time-col">
+                <div class="time-split">
+                  <input type="number" id="draw-hour" name="draw_hour" inputmode="numeric" min="0" max="23" placeholder="HH" />
+                  <span class="time-sep">:</span>
+                  <input type="number" id="draw-minute" name="draw_minute" inputmode="numeric" min="0" max="59" placeholder="MM" />
+                </div>
+              </div>
+              <button type="button" id="use-draw-now" class="btn btn-ghost">使用現在</button>
+            </div>
+          </div>
+          <div class="form-row">
             <label>初選號碼（六合彩 1–49，每組 6 個）</label>
             <div class="number-inputs" id="initial-numbers">
               <input type="number" min="1" max="49" placeholder="1" data-idx="0" />
@@ -112,6 +128,32 @@
             <button type="reset" class="btn btn-ghost">清空</button>
           </div>
         </form>
+      </section>
+
+      <section class="panel hexagram-panel">
+        <div class="panel-head">
+          <h2>梅花易數 · 時空起卦</h2>
+        </div>
+        <div class="hexagram-form">
+          <div class="form-row">
+            <label>開獎時刻</label>
+            <div class="current-time-group two-cols">
+              <div class="col">
+                <input type="date" id="hex-draw-date" />
+              </div>
+              <div class="col time-col">
+                <div class="time-split">
+                  <input type="number" id="hex-draw-hour" min="0" max="23" placeholder="HH" />
+                  <span class="time-sep">:</span>
+                  <input type="number" id="hex-draw-minute" min="0" max="59" placeholder="MM" />
+                </div>
+              </div>
+              <button type="button" id="hex-use-now" class="btn btn-ghost">使用現在</button>
+            </div>
+          </div>
+          <button type="button" id="hex-submit" class="btn btn-primary">起卦</button>
+        </div>
+        <div id="hex-result" class="hex-result hidden"></div>
       </section>
 
       <section class="panel results-panel hidden" id="results-panel">
