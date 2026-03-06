@@ -1,6 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-const { computeHexagram, getDivinationScore } = require('../lib/hexagram.js');
+const {
+  computeHexagram,
+  getDivinationScore,
+  calculateElementalResonance,
+  getNumberMeta,
+} = require('../lib/hexagram.js');
 
 let promptConfigCache = null;
 
@@ -208,6 +213,9 @@ module.exports = async function handler(req, res) {
     }
     const coreSet = new Set(result.core_numbers);
     const tiWuxing = hexagram && hexagram.ti_gua ? hexagram.ti_gua.wuxing : null;
+    const dayElement = hexagram && hexagram.day_element ? hexagram.day_element : null;
+    const userElement = result.user_element || null;
+
     result.bet_groups = result.bet_groups.slice(0, 5).map((group) => {
       const nums = normalizeNumbers(group.numbers, result.core_numbers);
       let energyScore = typeof group.energy_score === 'number' && group.energy_score >= 0 && group.energy_score <= 100
@@ -217,11 +225,28 @@ module.exports = async function handler(req, res) {
         const overlap = nums.filter((n) => coreSet.has(n)).length;
         energyScore = Math.min(100, 55 + overlap * 15);
       }
+
       if (tiWuxing && nums.length > 0) {
         const divScore = nums.reduce((s, n) => s * getDivinationScore(n, tiWuxing), 1);
         energyScore = Math.min(100, Math.round(energyScore * divScore));
       }
-      return { numbers: nums, desc: group.desc || '', energy_score: energyScore };
+
+      if (dayElement && nums.length > 0) {
+        const resonance = nums.reduce(
+          (s, n) => s * calculateElementalResonance(userElement, dayElement, n),
+          1
+        );
+        energyScore = Math.min(100, Math.round(energyScore * resonance));
+      }
+
+      const numberMeta = nums.map((n) => getNumberMeta(n, dayElement, userElement));
+
+      return {
+        numbers: nums,
+        desc: group.desc || '',
+        energy_score: energyScore,
+        number_meta: numberMeta,
+      };
     });
 
     res.status(200).json(result);

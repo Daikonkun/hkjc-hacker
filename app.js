@@ -266,8 +266,14 @@
       }
       html += '</div>';
       html += '<div class="bet-numbers">';
-      (g.numbers || []).forEach(function (num) {
-        html += '<span class="bet-num">' + num + '</span>';
+      (g.numbers || []).forEach(function (num, idx) {
+        const meta = g.number_meta && g.number_meta[idx] ? g.number_meta[idx] : null;
+        const tag = meta && meta.label ? meta.label : '';
+        html += '<span class="bet-num">' + num;
+        if (tag) {
+          html += '<span class="bet-num-tag">' + tag + '</span>';
+        }
+        html += '</span>';
       });
       html += '</div>';
       if (g.desc) html += '<div class="bet-group-desc">' + g.desc + '</div>';

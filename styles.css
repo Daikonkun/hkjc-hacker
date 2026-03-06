@@ -408,6 +408,16 @@ body {
   background: var(--wood);
   border: 1px solid var(--border);
   border-radius: 4px;
+  flex-direction: column;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+}
+
+.bet-num-tag {
+  margin-top: 0.1rem;
+  font-size: 0.6rem;
+  font-weight: 500;
+  color: var(--gold-light);
 }
 
 .bet-group-desc {
