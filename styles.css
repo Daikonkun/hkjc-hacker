@@ -892,20 +892,122 @@ body {
   pointer-events: none;
 }
 
-@media (max-width: 480px) {
-  .number-inputs {
-    grid-template-columns: repeat(3, 1fr);
+@media (max-width: 560px) {
+  .main-content {
+    padding: 1.25rem 0.75rem 2rem;
   }
 
+  .form {
+    padding: 1.15rem 1rem;
+  }
+
+  .site-title {
+    font-size: 1.35rem;
+  }
+
+  .site-subtitle {
+    font-size: 0.78rem;
+  }
+
+  /* 兩列佈局 → 單列堆疊 */
   .two-cols {
     flex-direction: column;
+    gap: 0.6rem;
   }
 
+  .two-cols .col {
+    min-width: 0;
+  }
+
+  /* 日期 + 時間 + 按鈕行：垂直排列 */
+  .current-time-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .current-time-group .col {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .current-time-group .time-col {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .current-time-group .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* 時間分割輸入 — 居中且更寬 */
+  .time-split {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .time-split input {
+    width: 72px;
+    padding: 0.6rem 0.5rem;
+    font-size: 1rem;
+  }
+
+  /* 標籤文字 */
+  .form-row label {
+    font-size: 0.82rem;
+    margin-bottom: 0.35rem;
+  }
+
+  /* 號碼輸入 3 列 */
+  .number-inputs {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+  }
+
+  .number-inputs input {
+    padding: 0.55rem 0.3rem;
+    font-size: 0.9rem;
+  }
+
+  /* 按鈕全寬 */
   .form-actions {
     flex-direction: column;
+    gap: 0.5rem;
   }
 
-  .btn {
+  .form-actions .btn {
+    width: 100%;
+  }
+
+  /* 面板內表單 */
+  .hexagram-form,
+  .qimen-panel .hexagram-form {
+    padding: 0.85rem 1rem;
+  }
+
+  /* 結果區域 */
+  .results-content {
+    padding: 1rem;
+  }
+
+  .bet-num {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.9rem;
+  }
+
+  .core-num {
+    width: 2.6rem;
+    height: 2.6rem;
+    font-size: 1.15rem;
+  }
+
+  .nayin-badge {
+    font-size: 0.95rem;
+  }
+
+  .qm-grid {
     width: 100%;
   }
 }
