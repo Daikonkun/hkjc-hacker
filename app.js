@@ -43,6 +43,14 @@
     if (el) clampNumberInput(el, 0, 59);
   });
 
+  // 開獎時間預設為 21:30（東八區 9:30pm）
+  ['21', '21'].forEach(function (val, idx) {
+    if (drawHourInput && !drawHourInput.value) drawHourInput.value = '21';
+    if (hexDrawHourInput && !hexDrawHourInput.value) hexDrawHourInput.value = '21';
+  });
+  if (drawMinuteInput && !drawMinuteInput.value) drawMinuteInput.value = '30';
+  if (hexDrawMinuteInput && !hexDrawMinuteInput.value) hexDrawMinuteInput.value = '30';
+
   function normalizeTimeParts(hourStr, minuteStr) {
     if (!hourStr || !minuteStr) return '';
     const h = parseInt(hourStr, 10);
