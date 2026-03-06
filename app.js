@@ -21,6 +21,12 @@
   const hexSubmitBtn = document.getElementById('hex-submit');
   const hexUseNowBtn = document.getElementById('hex-use-now');
   const hexResultEl = document.getElementById('hex-result');
+  const qmDrawDateInput = document.getElementById('qm-draw-date');
+  const qmDrawHourInput = document.getElementById('qm-draw-hour');
+  const qmDrawMinuteInput = document.getElementById('qm-draw-minute');
+  const qmSubmitBtn = document.getElementById('qm-submit');
+  const qmUseNowBtn = document.getElementById('qm-use-now');
+  const qmResultEl = document.getElementById('qm-result');
 
   function clampNumberInput(input, min, max) {
     input.addEventListener('change', function () {
@@ -36,20 +42,20 @@
   }
 
   // 限制小時/分鐘輸入
-  [birthHourInput, currentHourInput, drawHourInput, hexDrawHourInput].forEach(function (el) {
+  [birthHourInput, currentHourInput, drawHourInput, hexDrawHourInput, qmDrawHourInput].forEach(function (el) {
     if (el) clampNumberInput(el, 0, 23);
   });
-  [birthMinuteInput, currentMinuteInput, drawMinuteInput, hexDrawMinuteInput].forEach(function (el) {
+  [birthMinuteInput, currentMinuteInput, drawMinuteInput, hexDrawMinuteInput, qmDrawMinuteInput].forEach(function (el) {
     if (el) clampNumberInput(el, 0, 59);
   });
 
   // 開獎時間預設為 21:30（東八區 9:30pm）
-  ['21', '21'].forEach(function (val, idx) {
-    if (drawHourInput && !drawHourInput.value) drawHourInput.value = '21';
-    if (hexDrawHourInput && !hexDrawHourInput.value) hexDrawHourInput.value = '21';
+  [drawHourInput, hexDrawHourInput, qmDrawHourInput].forEach(function (el) {
+    if (el && !el.value) el.value = '21';
   });
-  if (drawMinuteInput && !drawMinuteInput.value) drawMinuteInput.value = '30';
-  if (hexDrawMinuteInput && !hexDrawMinuteInput.value) hexDrawMinuteInput.value = '30';
+  [drawMinuteInput, hexDrawMinuteInput, qmDrawMinuteInput].forEach(function (el) {
+    if (el && !el.value) el.value = '30';
+  });
 
   function normalizeTimeParts(hourStr, minuteStr) {
     if (!hourStr || !minuteStr) return '';
@@ -232,6 +238,138 @@
     });
   }
 
+  // 奇門遁甲面板
+  if (qmUseNowBtn) {
+    qmUseNowBtn.addEventListener('click', function () {
+      var now = new Date();
+      var year = now.getFullYear();
+      var month = String(now.getMonth() + 1).padStart(2, '0');
+      var day = String(now.getDate()).padStart(2, '0');
+      var hours = String(now.getHours()).padStart(2, '0');
+      var mins = String(now.getMinutes()).padStart(2, '0');
+      if (qmDrawDateInput) qmDrawDateInput.value = year + '-' + month + '-' + day;
+      if (qmDrawHourInput) qmDrawHourInput.value = hours;
+      if (qmDrawMinuteInput) qmDrawMinuteInput.value = mins;
+    });
+  }
+
+  function renderQiMenResult(qm, targetEl) {
+    if (!qm || qm.error) {
+      targetEl.innerHTML = '<p class="hex-error">' + (qm ? qm.error : '請輸入開獎時刻') + '</p>';
+      targetEl.classList.remove('hidden');
+      return;
+    }
+
+    var gridOrder = [
+      { palace: 4, name: '巽宮', dir: '東南', element: '木' },
+      { palace: 9, name: '離宮', dir: '正南', element: '火' },
+      { palace: 2, name: '坤宮', dir: '西南', element: '土' },
+      { palace: 3, name: '震宮', dir: '正東', element: '木' },
+      { palace: 5, name: '中宮', dir: '中央', element: '土' },
+      { palace: 7, name: '兌宮', dir: '正西', element: '金' },
+      { palace: 8, name: '艮宮', dir: '東北', element: '土' },
+      { palace: 1, name: '坎宮', dir: '正北', element: '水' },
+      { palace: 6, name: '乾宮', dir: '西北', element: '金' },
+    ];
+
+    var shengPalace = qm.sheng_men.palace;
+    var kaiPalace = qm.kai_men.palace;
+    var jingPalace = qm.jing_men.palace;
+
+    var html = '<div class="qm-result-inner">';
+
+    html += '<div class="qm-summary">';
+    html += '<p><strong>節氣：</strong>' + qm.jie_qi + ' · ' + qm.yuan + '</p>';
+    html += '<p><strong>遁局：</strong>' + qm.dun_type + ' ' + qm.ju_num + '局</p>';
+    html += '<p><strong>生門落宮：</strong>' + qm.sheng_men.palace_name + '（' + qm.sheng_men.position + '· ' + qm.sheng_men.element + '）</p>';
+    html += '<p><strong>開門落宮：</strong>' + qm.kai_men.palace_name + '</p>';
+    html += '<p><strong>景門落宮：</strong>' + qm.jing_men.palace_name + '</p>';
+    html += '</div>';
+
+    // 九宮格
+    html += '<div class="qm-grid-wrap"><div class="qm-grid">';
+    gridOrder.forEach(function (cell) {
+      var isSheng = cell.palace === shengPalace;
+      var isKai = cell.palace === kaiPalace;
+      var isJing = cell.palace === jingPalace;
+      var cls = 'qm-cell' + (isSheng ? ' active' : '');
+      html += '<div class="' + cls + '">';
+      html += '<span class="qm-cell-name">' + cell.name + '</span>';
+      html += '<span class="qm-cell-dir">' + cell.dir + ' · ' + cell.element + '</span>';
+      var doors = [];
+      if (isSheng) doors.push('★生門');
+      if (isKai) doors.push('開門');
+      if (isJing) doors.push('景門');
+      if (doors.length) {
+        html += '<span class="qm-cell-door">' + doors.join(' ') + '</span>';
+      }
+      html += '</div>';
+    });
+    html += '</div></div>';
+
+    // 格局標籤
+    if (qm.patterns && qm.patterns.length > 0) {
+      html += '<div class="qm-patterns">';
+      qm.patterns.forEach(function (p) {
+        var cls = 'qm-pattern-tag';
+        if (p.fortune === '大吉') cls += ' fortune-daji';
+        else if (p.fortune === '吉') cls += ' fortune-ji';
+        else cls += ' fortune-buli';
+        html += '<span class="' + cls + '" title="' + p.desc + '">' + p.name + ' · ' + p.fortune + '</span>';
+      });
+      html += '</div>';
+    }
+
+    // 能量提示
+    var tailNums = [];
+    var p = shengPalace;
+    for (var n = p; n <= 49; n += 10) { if (n >= 1) tailNums.push(n); }
+    if (p >= 1 && p <= 4) {
+      for (var n2 = p + 40; n2 <= 49; n2 += 10) { if (n2 >= 1 && tailNums.indexOf(n2) < 0) tailNums.push(n2); }
+    }
+    tailNums.sort(function (a, b) { return a - b; });
+
+    html += '<div class="qm-energy-hint">';
+    html += '當期生門落在<strong>' + qm.sheng_men.palace_name + '</strong>（' + qm.sheng_men.position + '），';
+    html += qm.sheng_men.position + '之' + qm.sheng_men.element + '氣正旺，';
+    html += '尾數 ' + shengPalace + ' 的號碼（' + tailNums.join('、') + '）出現概率大增。';
+    if (qm.sheng_men.is_ke) {
+      html += '<br>⚠ 生門落宮受克，能量有所削弱。';
+    }
+    html += '</div>';
+
+    html += '</div>';
+    targetEl.innerHTML = html;
+    targetEl.classList.remove('hidden');
+  }
+
+  if (qmSubmitBtn) {
+    qmSubmitBtn.addEventListener('click', async function () {
+      var drawDate = qmDrawDateInput ? qmDrawDateInput.value : '';
+      var drawTime = normalizeTimeParts(
+        qmDrawHourInput ? qmDrawHourInput.value : '',
+        qmDrawMinuteInput ? qmDrawMinuteInput.value : ''
+      );
+      var drawDatetime = drawDate && drawTime ? drawDate + ' ' + drawTime : '';
+      if (!drawDatetime) {
+        renderQiMenResult({ error: '請輸入開獎日期與時間' }, qmResultEl);
+        return;
+      }
+      try {
+        var res = await fetch('/api/qimen', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ draw_datetime: drawDatetime })
+        });
+        var data = await res.json();
+        if (!res.ok) renderQiMenResult({ error: data.error || data.message || '請求失敗' }, qmResultEl);
+        else renderQiMenResult(data, qmResultEl);
+      } catch (e) {
+        renderQiMenResult({ error: e.message || '無法連接到服務器' }, qmResultEl);
+      }
+    });
+  }
+
   function renderResults(data, result) {
     const s = result;
     let html = '';
@@ -244,6 +382,14 @@
       html += '<p><strong>體卦：</strong>' + h.ti_gua.name + '（' + h.ti_gua.wuxing + '） · <strong>用卦：</strong>' + h.yong_gua.name + '（' + h.yong_gua.wuxing + '）</p>';
       html += '<p><strong>體用生克：</strong>' + h.relation_label + ' — ' + h.relation_fortune + '</p>';
       html += '</div></div>';
+    }
+
+    if (s.qimen) {
+      html += '<div class="result-section qm-section"><h3>奇門遁甲 · 時空排盤</h3>';
+      var qmContainer = document.createElement('div');
+      qmContainer.id = 'qm-result-inline';
+      html += '<div id="qm-result-inline"></div>';
+      html += '</div>';
     }
 
     html += '<div class="result-section"><h3>真太陽時修正說明</h3><p>' + (s.solar_time_note || '') + '</p></div>';
@@ -290,6 +436,15 @@
 
     resultsContent.innerHTML = html;
     resultsPanel.classList.remove('hidden');
+
+    if (s.qimen) {
+      var qmInline = document.getElementById('qm-result-inline');
+      if (qmInline) {
+        qmInline.classList.remove('hidden');
+        renderQiMenResult(s.qimen, qmInline);
+      }
+    }
+
     resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 

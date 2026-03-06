@@ -470,6 +470,147 @@ body {
   padding: 0.85rem 1rem;
 }
 
+/* 奇門遁甲盤面 */
+.qimen-panel {
+  margin-bottom: 2rem;
+}
+
+.qm-result {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.qm-result.hidden {
+  display: none;
+}
+
+.qm-result-inner p {
+  margin: 0.35rem 0;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+.qm-summary {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.qm-grid-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0.75rem 0;
+}
+
+.qm-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  width: min(100%, 320px);
+}
+
+.qm-cell {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem 0.35rem;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  position: relative;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.35;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.qm-cell-name {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+
+.qm-cell-dir {
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+}
+
+.qm-cell-element {
+  font-size: 0.7rem;
+  color: var(--gold);
+}
+
+.qm-cell.active {
+  border-color: var(--gold);
+  background: rgba(166, 43, 43, 0.2);
+  box-shadow: 0 0 8px rgba(201, 162, 39, 0.25);
+}
+
+.qm-cell.active .qm-cell-name {
+  color: var(--gold-light);
+}
+
+.qm-cell-door {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--red-light);
+}
+
+.qm-patterns {
+  margin-top: 0.5rem;
+}
+
+.qm-pattern-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 4px;
+  margin-right: 0.4rem;
+  margin-bottom: 0.3rem;
+}
+
+.qm-pattern-tag.fortune-daji {
+  color: var(--gold-light);
+  background: rgba(166, 43, 43, 0.35);
+  border: 1px solid var(--gold);
+}
+
+.qm-pattern-tag.fortune-ji {
+  color: var(--gold);
+  background: rgba(201, 162, 39, 0.1);
+  border: 1px solid var(--gold);
+}
+
+.qm-pattern-tag.fortune-buli {
+  color: var(--ink-muted);
+  background: rgba(100, 100, 100, 0.15);
+  border: 1px solid var(--border);
+}
+
+.qm-energy-hint {
+  font-size: 0.88rem;
+  color: var(--gold-light);
+  background: rgba(201, 162, 39, 0.08);
+  border-left: 3px solid var(--gold);
+  padding: 0.6rem 0.85rem;
+  margin-top: 0.75rem;
+  border-radius: 0 4px 4px 0;
+}
+
+.qm-section .qm-summary {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.85rem 1rem;
+}
+
 /* 策略區塊 */
 .strategy-box {
   background: rgba(166, 43, 43, 0.15);

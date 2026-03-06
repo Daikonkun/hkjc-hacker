@@ -6,6 +6,7 @@ const {
   calculateElementalResonance,
   getNumberMeta,
 } = require('../lib/hexagram.js');
+const { computeQiMen, getSpatialWeight } = require('../lib/qimen.js');
 
 let promptConfigCache = null;
 
@@ -52,6 +53,7 @@ function buildSystemPrompt() {
   );
   prompt += '\n每組 bet_groups 必須包含 energy_score（0-100 的整數），表示該組號碼與用戶命局及流時的能量契合度。';
   prompt += '\n若用戶提供了開獎時刻，可結合梅花易數體卦五行（乾兌金、離火、震巽木、坎水、艮坤土），對與體卦相同或被體卦所克（財）的號碼給予更高評價。';
+  prompt += '\n同時結合奇門遁甲時家排盤的「生門」落宮位置，對該宮位對應尾數的號碼進行空間能量加權。';
 
   return prompt;
 }
@@ -182,9 +184,12 @@ module.exports = async function handler(req, res) {
       : [];
 
     let hexagram = null;
+    let qimen = null;
     if (draw_datetime) {
       hexagram = computeHexagram(draw_datetime);
       if (hexagram.error) hexagram = null;
+      qimen = computeQiMen(draw_datetime);
+      if (qimen.error) qimen = null;
     }
 
     const userPrompt = buildUserPrompt({
@@ -199,6 +204,11 @@ module.exports = async function handler(req, res) {
     const result = parseAIResponse(aiResponse);
 
     if (hexagram) result.hexagram = hexagram;
+    if (qimen) {
+      var qmDisplay = Object.assign({}, qimen);
+      delete qmDisplay.spatial_energy_map;
+      result.qimen = qmDisplay;
+    }
 
     if (!result.core_numbers || !Array.isArray(result.core_numbers)) {
       result.core_numbers = result.core_numbers || [13, 18, 24];
@@ -237,6 +247,14 @@ module.exports = async function handler(req, res) {
           1
         );
         energyScore = Math.min(100, Math.round(energyScore * resonance));
+      }
+
+      if (qimen && qimen.spatial_energy_map && nums.length > 0) {
+        const spatialFactor = nums.reduce(
+          (s, n) => s * getSpatialWeight(qimen.spatial_energy_map, n),
+          1
+        );
+        energyScore = Math.min(100, Math.round(energyScore * spatialFactor));
       }
 
       const numberMeta = nums.map((n) => getNumberMeta(n, dayElement, userElement));

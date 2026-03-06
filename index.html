@@ -14,7 +14,7 @@
     <header class="site-header">
       <div class="header-inner">
         <h1 class="site-title">八字六合彩 · 時空合盤</h1>
-        <p class="site-subtitle">真太陽時 · 喜用神 · 梅花易數 · 號碼矩陣</p>
+        <p class="site-subtitle">真太陽時 · 喜用神 · 梅花易數 · 奇門遁甲 · 號碼矩陣</p>
       </div>
     </header>
 
@@ -154,6 +154,32 @@
           <button type="button" id="hex-submit" class="btn btn-primary">起卦</button>
         </div>
         <div id="hex-result" class="hex-result hidden"></div>
+      </section>
+
+      <section class="panel qimen-panel">
+        <div class="panel-head">
+          <h2>奇門遁甲 · 時空排盤</h2>
+        </div>
+        <div class="hexagram-form">
+          <div class="form-row">
+            <label>開獎時刻</label>
+            <div class="current-time-group two-cols">
+              <div class="col">
+                <input type="date" id="qm-draw-date" />
+              </div>
+              <div class="col time-col">
+                <div class="time-split">
+                  <input type="number" id="qm-draw-hour" min="0" max="23" placeholder="HH" />
+                  <span class="time-sep">:</span>
+                  <input type="number" id="qm-draw-minute" min="0" max="59" placeholder="MM" />
+                </div>
+              </div>
+              <button type="button" id="qm-use-now" class="btn btn-ghost">使用現在</button>
+            </div>
+          </div>
+          <button type="button" id="qm-submit" class="btn btn-primary">排盤</button>
+        </div>
+        <div id="qm-result" class="qm-result hidden"></div>
       </section>
 
       <section class="panel results-panel hidden" id="results-panel">
