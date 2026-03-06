@@ -374,6 +374,21 @@
     const s = result;
     let html = '';
 
+    if (s.nayin) {
+      html += '<div class="result-section nayin-section">';
+      html += '<h3>納音能量基調</h3>';
+      html += '<div class="nayin-banner">';
+      html += '<span class="nayin-badge">' + s.nayin.day_ganzhi + ' · ' + s.nayin.day_nayin + '</span>';
+      html += '<p class="nayin-desc">' + s.nayin.description + '</p>';
+      if (s.nayin.year_nayin || s.nayin.time_nayin) {
+        html += '<p class="nayin-sub">';
+        if (s.nayin.year_nayin) html += '年柱納音：' + s.nayin.year_nayin + '　';
+        if (s.nayin.time_nayin) html += '時柱納音：' + s.nayin.time_nayin;
+        html += '</p>';
+      }
+      html += '</div></div>';
+    }
+
     if (s.hexagram) {
       const h = s.hexagram;
       html += '<div class="result-section hexagram-section"><h3>梅花易數 · 時空起卦</h3>';

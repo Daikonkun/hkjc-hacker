@@ -611,6 +611,45 @@ body {
   padding: 0.85rem 1rem;
 }
 
+/* 納音能量基調 */
+.nayin-section {
+  margin-bottom: 1.5rem;
+}
+
+.nayin-banner {
+  background: linear-gradient(135deg, rgba(201, 162, 39, 0.1) 0%, rgba(61, 46, 36, 0.4) 100%);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 1rem 1.15rem;
+  position: relative;
+}
+
+.nayin-badge {
+  display: inline-block;
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--gold-light);
+  background: rgba(166, 43, 43, 0.35);
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  padding: 0.25rem 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.nayin-desc {
+  font-size: 0.9rem;
+  color: var(--ink);
+  line-height: 1.65;
+  margin: 0.5rem 0 0 0;
+}
+
+.nayin-sub {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  margin: 0.4rem 0 0 0;
+}
+
 /* 陰陽消長 AI 綜述 */
 .yy-section {
   margin-bottom: 1.5rem;

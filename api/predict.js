@@ -8,6 +8,7 @@ const {
 } = require('../lib/hexagram.js');
 const { computeQiMen, getSpatialWeight } = require('../lib/qimen.js');
 const { applyYinYangBalance } = require('../lib/yinyang.js');
+const { computeNaYinContext, getGroupNaYinFactor } = require('../lib/nayin.js');
 
 let promptConfigCache = null;
 
@@ -186,11 +187,14 @@ module.exports = async function handler(req, res) {
 
     let hexagram = null;
     let qimen = null;
+    let nayin = null;
     if (draw_datetime) {
       hexagram = computeHexagram(draw_datetime);
       if (hexagram.error) hexagram = null;
       qimen = computeQiMen(draw_datetime);
       if (qimen.error) qimen = null;
+      nayin = computeNaYinContext(draw_datetime);
+      if (nayin.error) nayin = null;
     }
 
     const userPrompt = buildUserPrompt({
@@ -204,6 +208,7 @@ module.exports = async function handler(req, res) {
     const aiResponse = await callXAI(userPrompt);
     const result = parseAIResponse(aiResponse);
 
+    if (nayin) result.nayin = nayin;
     if (hexagram) result.hexagram = hexagram;
     if (qimen) {
       var qmDisplay = Object.assign({}, qimen);
@@ -235,6 +240,11 @@ module.exports = async function handler(req, res) {
       if (energyScore === null) {
         const overlap = nums.filter((n) => coreSet.has(n)).length;
         energyScore = Math.min(100, 55 + overlap * 15);
+      }
+
+      if (nayin && nayin.day_nayin_element && nums.length > 0) {
+        var nayinFactor = getGroupNaYinFactor(nums, nayin.day_nayin_element);
+        energyScore = Math.min(100, Math.round(energyScore * nayinFactor));
       }
 
       if (tiWuxing && nums.length > 0) {
