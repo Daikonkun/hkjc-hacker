@@ -392,6 +392,21 @@
       html += '</div>';
     }
 
+    if (s.yinyang_summary) {
+      html += '<div class="result-section yy-section"><h3>AI 能量綜述 · 陰陽消長</h3>';
+      html += '<div class="yy-summary-box">';
+      html += '<p class="yy-summary-text">' + s.yinyang_summary + '</p>';
+      if (s.yinyang_analysis) {
+        html += '<div class="yy-meta">';
+        html += '<span class="yy-target-tag">目標比例 ' + s.yinyang_analysis.target + '</span>';
+        if (s.yinyang_analysis.recent_ratios && s.yinyang_analysis.recent_ratios.length > 0) {
+          html += '<span class="yy-trend">走勢 ' + s.yinyang_analysis.recent_ratios.join(' → ') + '</span>';
+        }
+        html += '</div>';
+      }
+      html += '</div></div>';
+    }
+
     html += '<div class="result-section"><h3>真太陽時修正說明</h3><p>' + (s.solar_time_note || '') + '</p></div>';
     html += '<div class="result-section"><h3>八字喜用神深度分析</h3><p>' + (s.bazi_analysis || '') + '</p></div>';
     html += '<div class="result-section"><h3>初選號能量點評</h3><p>' + (s.initial_review || '') + '</p></div>';
@@ -409,6 +424,9 @@
       html += '<span class="bet-group-title">第 ' + (i + 1) + ' 組</span>';
       if (typeof g.energy_score === 'number') {
         html += '<span class="bet-group-energy" title="能量契合度 0–100">能量 ' + g.energy_score + '</span>';
+      }
+      if (g.yinyang_ratio) {
+        html += '<span class="bet-group-yy" title="奇偶比（陽:陰）">' + g.yinyang_ratio + '</span>';
       }
       html += '</div>';
       html += '<div class="bet-numbers">';

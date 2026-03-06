@@ -7,6 +7,7 @@ const {
   getNumberMeta,
 } = require('../lib/hexagram.js');
 const { computeQiMen, getSpatialWeight } = require('../lib/qimen.js');
+const { applyYinYangBalance } = require('../lib/yinyang.js');
 
 let promptConfigCache = null;
 
@@ -266,6 +267,11 @@ module.exports = async function handler(req, res) {
         number_meta: numberMeta,
       };
     });
+
+    var yyResult = applyYinYangBalance(result.bet_groups);
+    result.bet_groups = yyResult.groups;
+    result.yinyang_summary = yyResult.summary;
+    result.yinyang_analysis = yyResult.analysis;
 
     res.status(200).json(result);
   } catch (error) {

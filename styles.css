@@ -611,6 +611,59 @@ body {
   padding: 0.85rem 1rem;
 }
 
+/* 陰陽消長 AI 綜述 */
+.yy-section {
+  margin-bottom: 1.5rem;
+}
+
+.yy-summary-box {
+  background: linear-gradient(135deg, rgba(201, 162, 39, 0.06) 0%, rgba(166, 43, 43, 0.08) 100%);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 4px 4px 0;
+  padding: 0.85rem 1rem;
+}
+
+.yy-summary-text {
+  font-size: 0.9rem;
+  color: var(--ink);
+  line-height: 1.65;
+  margin: 0 0 0.5rem 0;
+}
+
+.yy-meta {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.yy-target-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gold-light);
+  background: rgba(166, 43, 43, 0.3);
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  padding: 0.15rem 0.5rem;
+}
+
+.yy-trend {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  font-family: var(--sans);
+}
+
+.bet-group-yy {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--ink-muted);
+  background: rgba(201, 162, 39, 0.08);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+}
+
 /* 策略區塊 */
 .strategy-box {
   background: rgba(166, 43, 43, 0.15);
