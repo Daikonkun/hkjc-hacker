@@ -364,10 +364,29 @@ body {
   margin-bottom: 0;
 }
 
+.bet-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .bet-group-title {
   font-size: 0.8rem;
   color: var(--gold);
-  margin-bottom: 0.5rem;
+}
+
+.bet-group-energy {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gold-light);
+  background: rgba(166, 43, 43, 0.3);
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  padding: 0.15rem 0.5rem;
+  min-width: 2rem;
+  text-align: center;
 }
 
 .bet-numbers {

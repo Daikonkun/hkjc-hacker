@@ -32,6 +32,7 @@ function buildSystemPrompt() {
         {
           numbers: [1, 2, 3, 4, 5, 6],
           desc: '五行解析說明',
+          energy_score: 85,
         },
       ],
       strategy: {
@@ -43,6 +44,7 @@ function buildSystemPrompt() {
     null,
     2
   );
+  prompt += '\n每組 bet_groups 必須包含 energy_score（0-100 的整數），表示該組號碼與用戶命局及流時的能量契合度。';
 
   return prompt;
 }
@@ -190,9 +192,17 @@ module.exports = async function handler(req, res) {
     if (!result.bet_groups || !Array.isArray(result.bet_groups)) {
       result.bet_groups = [];
     }
+    const coreSet = new Set(result.core_numbers);
     result.bet_groups = result.bet_groups.slice(0, 5).map((group) => {
       const nums = normalizeNumbers(group.numbers, result.core_numbers);
-      return { numbers: nums, desc: group.desc || '' };
+      let energyScore = typeof group.energy_score === 'number' && group.energy_score >= 0 && group.energy_score <= 100
+        ? Math.round(group.energy_score)
+        : null;
+      if (energyScore === null) {
+        const overlap = nums.filter((n) => coreSet.has(n)).length;
+        energyScore = Math.min(100, 55 + overlap * 15);
+      }
+      return { numbers: nums, desc: group.desc || '', energy_score: energyScore };
     });
 
     res.status(200).json(result);

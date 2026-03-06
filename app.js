@@ -151,7 +151,12 @@
     html += '<div class="result-section"><h3>五組推薦注號矩陣（含五行解析）</h3>';
     (s.bet_groups || []).forEach(function (g, i) {
       html += '<div class="bet-group">';
-      html += '<div class="bet-group-title">第 ' + (i + 1) + ' 組</div>';
+      html += '<div class="bet-group-header">';
+      html += '<span class="bet-group-title">第 ' + (i + 1) + ' 組</span>';
+      if (typeof g.energy_score === 'number') {
+        html += '<span class="bet-group-energy" title="能量契合度 0–100">能量 ' + g.energy_score + '</span>';
+      }
+      html += '</div>';
       html += '<div class="bet-numbers">';
       (g.numbers || []).forEach(function (num) {
         html += '<span class="bet-num">' + num + '</span>';
