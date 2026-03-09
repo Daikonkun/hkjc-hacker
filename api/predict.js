@@ -56,12 +56,13 @@ function buildSystemPrompt() {
   prompt += '\nbet_groups 必須恰好包含 5 組（五組推薦注號），每組 6 個號碼，每組必須包含 energy_score（0-100 的整數），表示該組號碼與用戶命局及流時的能量契合度。';
   prompt += '\n若用戶提供了開獎時刻，可結合梅花易數體卦五行（乾兌金、離火、震巽木、坎水、艮坤土），對與體卦相同或被體卦所克（財）的號碼給予更高評價。';
   prompt += '\n同時結合奇門遁甲時家排盤的「生門」落宮位置，對該宮位對應尾數的號碼進行空間能量加權。';
+  prompt += '\n重要：當開獎時刻存在時，推薦組合必須明顯反映該日的時空能量（納音、體卦、生門、開獎日干支），不同開獎日應產出明顯不同的 core_numbers 與 bet_groups，避免僅以八字主導而忽略日期變化。';
 
   return prompt;
 }
 
 function buildUserPrompt(data) {
-  const { birth_time, birth_location, current_time, initial_numbers } = data;
+  const { birth_time, birth_location, current_time, initial_numbers, draw_datetime, draw_summary } = data;
 
   let prompt = `請根據以下信息進行分析：\n\n`;
   prompt += `出生時間：${birth_time}\n`;
@@ -74,8 +75,12 @@ function buildUserPrompt(data) {
     prompt += `初選號碼：未提供\n`;
   }
 
-  if (data.draw_datetime) {
-    prompt += `\n開獎時刻（梅花易數起卦用）：${data.draw_datetime}`;
+  if (draw_datetime) {
+    prompt += `\n開獎時刻：${draw_datetime}`;
+    if (draw_summary) {
+      prompt += `\n開獎日情境（請據此讓推薦明顯反映當日時空，與八字並重）：${draw_summary}`;
+    }
+    prompt += `\n請讓 core_numbers 與五組 bet_groups 明顯隨此開獎日變化，勿僅依八字產出雷同組合。`;
   }
   prompt += `\n請按照系統提示的步驟進行完整分析，並返回符合格式要求的 JSON。`;
 
@@ -197,12 +202,24 @@ module.exports = async function handler(req, res) {
       if (nayin.error) nayin = null;
     }
 
+    const drawSummary =
+      draw_datetime && [nayin, hexagram, qimen].some(Boolean)
+        ? [
+            nayin && nayin.day_nayin_element ? '納音' + nayin.day_nayin_element : null,
+            hexagram && hexagram.ti_gua ? '體卦' + hexagram.ti_gua.name + hexagram.ti_gua.wuxing : null,
+            qimen && qimen.sheng_men ? '生門落' + qimen.sheng_men.palace_name : null,
+          ]
+            .filter(Boolean)
+            .join('、')
+        : undefined;
+
     const userPrompt = buildUserPrompt({
       birth_time,
       birth_location,
       current_time: current_time || new Date().toISOString().slice(0, 16).replace('T', ' '),
       initial_numbers: numbers,
       draw_datetime: draw_datetime || undefined,
+      draw_summary: drawSummary,
     });
 
     const aiResponse = await callXAI(userPrompt);
@@ -242,41 +259,42 @@ module.exports = async function handler(req, res) {
       result.bet_groups.push({ numbers: padNums.sort((a, b) => a - b), desc: '系統自動補足組合。', energy_score: 60 });
     }
 
+    const hasDrawContext = !!(nayin?.day_nayin_element || tiWuxing || dayElement || (qimen?.spatial_energy_map?.length > 0));
+
     result.bet_groups = result.bet_groups.slice(0, 5).map((group) => {
       const nums = normalizeNumbers(group.numbers, result.core_numbers);
-      let energyScore = typeof group.energy_score === 'number' && group.energy_score >= 0 && group.energy_score <= 100
+      let baseScore = typeof group.energy_score === 'number' && group.energy_score >= 0 && group.energy_score <= 100
         ? Math.round(group.energy_score)
         : null;
-      if (energyScore === null) {
+      if (baseScore === null) {
         const overlap = nums.filter((n) => coreSet.has(n)).length;
-        energyScore = Math.min(100, 55 + overlap * 15);
+        baseScore = Math.min(100, 55 + overlap * 15);
       }
 
+      let drawFactor = 1;
       if (nayin && nayin.day_nayin_element && nums.length > 0) {
-        var nayinFactor = getGroupNaYinFactor(nums, nayin.day_nayin_element);
-        energyScore = Math.min(100, Math.round(energyScore * nayinFactor));
+        drawFactor *= getGroupNaYinFactor(nums, nayin.day_nayin_element);
       }
-
       if (tiWuxing && nums.length > 0) {
-        const divScore = nums.reduce((s, n) => s * getDivinationScore(n, tiWuxing), 1);
-        energyScore = Math.min(100, Math.round(energyScore * divScore));
+        drawFactor *= nums.reduce((s, n) => s * getDivinationScore(n, tiWuxing), 1);
       }
-
       if (dayElement && nums.length > 0) {
-        const resonance = nums.reduce(
+        drawFactor *= nums.reduce(
           (s, n) => s * calculateElementalResonance(userElement, dayElement, n),
           1
         );
-        energyScore = Math.min(100, Math.round(energyScore * resonance));
       }
-
       if (qimen && qimen.spatial_energy_map && nums.length > 0) {
-        const spatialFactor = nums.reduce(
+        drawFactor *= nums.reduce(
           (s, n) => s * getSpatialWeight(qimen.spatial_energy_map, n),
           1
         );
-        energyScore = Math.min(100, Math.round(energyScore * spatialFactor));
       }
+
+      const drawAdjustedScore = Math.min(100, Math.round(baseScore * drawFactor));
+      const energyScore = hasDrawContext
+        ? Math.min(100, Math.round(0.45 * baseScore + 0.55 * drawAdjustedScore))
+        : drawAdjustedScore;
 
       const numberMeta = nums.map((n) => getNumberMeta(n, dayElement, userElement));
 
@@ -288,7 +306,8 @@ module.exports = async function handler(req, res) {
       };
     });
 
-    var yyResult = applyYinYangBalance(result.bet_groups);
+    const drawDate = draw_datetime ? String(draw_datetime).trim().slice(0, 10) : undefined;
+    var yyResult = applyYinYangBalance(result.bet_groups, { drawDate });
     result.bet_groups = yyResult.groups;
     result.yinyang_summary = yyResult.summary;
     result.yinyang_analysis = yyResult.analysis;
