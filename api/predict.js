@@ -95,7 +95,7 @@ async function callOpenRouter(userPrompt) {
     throw new Error('OPENROUTER_API_KEY 未配置，請在 Vercel 環境變量中設置');
   }
 
-  const model = process.env.OPENROUTER_MODEL || 'anthropic/claude-sonnet-4-6';
+  const model = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-v3.2';
   const systemPrompt = buildSystemPrompt();
 
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
