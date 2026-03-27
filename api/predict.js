@@ -89,20 +89,22 @@ function buildUserPrompt(data) {
   return prompt;
 }
 
-async function callXAI(userPrompt) {
-  const apiKey = process.env.XAI_API_KEY;
-  if (!apiKey || apiKey === 'your_xai_api_key_here') {
-    throw new Error('XAI_API_KEY 未配置，請在 Vercel 環境變量中設置');
+async function callOpenRouter(userPrompt) {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey || apiKey === 'your_openrouter_api_key_here') {
+    throw new Error('OPENROUTER_API_KEY 未配置，請在 Vercel 環境變量中設置');
   }
 
-  const model = process.env.XAI_MODEL || 'grok-beta';
+  const model = process.env.OPENROUTER_MODEL || 'anthropic/claude-sonnet-4-6';
   const systemPrompt = buildSystemPrompt();
 
-  const response = await fetch('https://api.x.ai/v1/chat/completions', {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
+      'HTTP-Referer': 'https://hkjc-hacker.vercel.app',
+      'X-Title': 'HKJC Bazi Predictor',
     },
     body: JSON.stringify({
       model,
@@ -117,7 +119,7 @@ async function callXAI(userPrompt) {
 
   if (!response.ok) {
     const errorText = await response.text();
-    let errorMsg = `xAI API 錯誤 (${response.status})`;
+    let errorMsg = `OpenRouter API 錯誤 (${response.status})`;
     try {
       const errorJson = JSON.parse(errorText);
       if (errorJson.error && errorJson.error.message) {
@@ -133,7 +135,7 @@ async function callXAI(userPrompt) {
 
   const data = await response.json();
   if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-    throw new Error('xAI API 返回格式異常');
+    throw new Error('OpenRouter API 返回格式異常');
   }
   return data.choices[0].message.content;
 }
@@ -224,7 +226,7 @@ module.exports = async function handler(req, res) {
       draw_summary: drawSummary,
     });
 
-    const aiResponse = await callXAI(userPrompt);
+    const aiResponse = await callOpenRouter(userPrompt);
     const result = parseAIResponse(aiResponse);
 
     if (nayin) result.nayin = nayin;
