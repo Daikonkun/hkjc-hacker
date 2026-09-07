@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div id="ritual-overlay" class="ritual-overlay hidden">
+  <div id="ritual-overlay" class="ritual-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="ritual-text">
     <div class="ritual-particles" id="ritual-particles"></div>
     <div class="ritual-center">
       <svg class="ritual-ring" viewBox="0 0 120 120">
@@ -18,8 +18,10 @@
         <circle class="ritual-ring-fg" id="ritual-ring-fg" cx="60" cy="60" r="54" />
       </svg>
       <div class="ritual-icon" id="ritual-icon">卦</div>
-      <p class="ritual-text" id="ritual-text"></p>
+      <p class="ritual-text" id="ritual-text" role="status">正在生成分析，請稍候…</p>
       <p class="ritual-step" id="ritual-step-label"></p>
+      <button type="button" id="cancel-prediction" class="btn btn-ghost">停止等待</button>
+      <p class="form-hint">停止等待後，已送出的分析仍可能在背景完成。</p>
     </div>
   </div>
   <div class="page-wrap">
@@ -33,7 +35,7 @@
     <main class="main-content">
       <section class="panel input-panel">
         <div class="panel-head">
-          <h2>輸入參數</h2>
+          <h2>開始你的合盤</h2>
         </div>
         <form id="predict-form" class="form">
           <div class="form-row two-cols">
@@ -42,7 +44,7 @@
               <input type="date" id="birth-date" name="birth_date" required />
             </div>
             <div class="col">
-              <label for="birth-time">出生時間（24h）</label>
+              <label for="birth-hour">出生時間（24 小時制）</label>
               <div class="time-split">
                 <input
                   type="number"
@@ -72,13 +74,17 @@
           </div>
           <div class="form-row">
             <label for="birth-location">出生地點</label>
-            <input type="text" id="birth-location" name="birth_location" placeholder="城市名稱或經緯度" required />
+            <input type="text" id="birth-location" name="birth_location" placeholder="例如：香港、台北、倫敦" aria-describedby="location-help" required />
+            <p class="form-hint" id="location-help">請填寫出生城市及當地出生時間；跨時區請註明國家或地區。</p>
           </div>
+          <p class="form-hint">分析時間自動使用香港時間（UTC+8）。所有出生資料均為必填。</p>
+          <details id="optional-settings" class="optional-settings">
+          <summary>選填設定：開獎日期、初選號碼及分析時間</summary>
           <div class="form-row">
             <label>當前時間</label>
             <div class="current-time-group two-cols">
               <div class="col">
-                <input type="date" id="current-date" name="current_date" />
+                <input type="date" id="current-date" name="current_date" aria-label="分析日期（香港時間）" />
               </div>
               <div class="col time-col">
                 <div class="time-split">
@@ -135,6 +141,8 @@
               <input type="number" min="1" max="49" placeholder="6" data-idx="5" />
             </div>
           </div>
+          </details>
+          <p id="form-feedback" class="form-hint" role="status"></p>
           <div class="form-actions">
             <button type="submit" class="btn btn-primary">起盤推算</button>
             <button type="reset" class="btn btn-ghost">清空</button>
@@ -142,6 +150,7 @@
         </form>
       </section>
 
+      <details class="standalone-tools"><summary>獨立排盤工具：梅花易數 / 奇門遁甲</summary>
       <section class="panel hexagram-panel">
         <div class="panel-head">
           <h2>梅花易數 · 時空起卦</h2>
@@ -194,9 +203,10 @@
         <div id="qm-result" class="qm-result hidden"></div>
       </section>
 
-      <section class="panel results-panel hidden" id="results-panel">
+      </details>
+      <section class="panel results-panel hidden" id="results-panel" tabindex="-1" aria-labelledby="results-heading">
         <div class="panel-head">
-          <h2>合盤結果</h2>
+          <h2 id="results-heading">合盤結果</h2>
         </div>
         <div id="results-content" class="results-content">
           <!-- Filled by JS -->

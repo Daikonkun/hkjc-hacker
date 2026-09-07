@@ -67,12 +67,12 @@
 
   // 使用現在時間
   useNowBtn.addEventListener('click', function () {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const mins = String(now.getMinutes()).padStart(2, '0');
+    const now = new Date(Date.now() + 8 * 60 * 60 * 1000);
+    const year = now.getUTCFullYear();
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(now.getUTCDate()).padStart(2, '0');
+    const hours = String(now.getUTCHours()).padStart(2, '0');
+    const mins = String(now.getUTCMinutes()).padStart(2, '0');
     if (currentDateInput) currentDateInput.value = `${year}-${month}-${day}`;
     if (currentHourInput) currentHourInput.value = hours;
     if (currentMinuteInput) currentMinuteInput.value = mins;
@@ -81,12 +81,12 @@
   const useDrawNowBtn = document.getElementById('use-draw-now');
   if (useDrawNowBtn) {
     useDrawNowBtn.addEventListener('click', function () {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      const hours = String(now.getHours()).padStart(2, '0');
-      const mins = String(now.getMinutes()).padStart(2, '0');
+      const now = new Date(Date.now() + 8 * 60 * 60 * 1000);
+      const year = now.getUTCFullYear();
+      const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(now.getUTCDate()).padStart(2, '0');
+      const hours = String(now.getUTCHours()).padStart(2, '0');
+      const mins = String(now.getUTCMinutes()).padStart(2, '0');
       if (drawDateInput) drawDateInput.value = `${year}-${month}-${day}`;
       if (drawHourInput) drawHourInput.value = hours;
       if (drawMinuteInput) drawMinuteInput.value = mins;
@@ -95,12 +95,12 @@
 
   if (hexUseNowBtn) {
     hexUseNowBtn.addEventListener('click', function () {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      const hours = String(now.getHours()).padStart(2, '0');
-      const mins = String(now.getMinutes()).padStart(2, '0');
+      const now = new Date(Date.now() + 8 * 60 * 60 * 1000);
+      const year = now.getUTCFullYear();
+      const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(now.getUTCDate()).padStart(2, '0');
+      const hours = String(now.getUTCHours()).padStart(2, '0');
+      const mins = String(now.getUTCMinutes()).padStart(2, '0');
       if (hexDrawDateInput) hexDrawDateInput.value = `${year}-${month}-${day}`;
       if (hexDrawHourInput) hexDrawHourInput.value = hours;
       if (hexDrawMinuteInput) hexDrawMinuteInput.value = mins;
@@ -241,12 +241,12 @@
   // 奇門遁甲面板
   if (qmUseNowBtn) {
     qmUseNowBtn.addEventListener('click', function () {
-      var now = new Date();
-      var year = now.getFullYear();
-      var month = String(now.getMonth() + 1).padStart(2, '0');
-      var day = String(now.getDate()).padStart(2, '0');
-      var hours = String(now.getHours()).padStart(2, '0');
-      var mins = String(now.getMinutes()).padStart(2, '0');
+      var now = new Date(Date.now() + 8 * 60 * 60 * 1000);
+      var year = now.getUTCFullYear();
+      var month = String(now.getUTCMonth() + 1).padStart(2, '0');
+      var day = String(now.getUTCDate()).padStart(2, '0');
+      var hours = String(now.getUTCHours()).padStart(2, '0');
+      var mins = String(now.getUTCMinutes()).padStart(2, '0');
       if (qmDrawDateInput) qmDrawDateInput.value = year + '-' + month + '-' + day;
       if (qmDrawHourInput) qmDrawHourInput.value = hours;
       if (qmDrawMinuteInput) qmDrawMinuteInput.value = mins;
@@ -371,7 +371,14 @@
   }
 
   function renderResults(data, result) {
-    const s = result;
+    // Model text is untrusted: escape it before inserting any HTML.
+    function escapeValues(value) {
+      if (typeof value === 'string') return value.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      if (Array.isArray(value)) return value.map(escapeValues);
+      if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k,v]) => [k, escapeValues(v)]));
+      return value;
+    }
+    const s = escapeValues(result);
     let html = '';
 
     if (s.nayin) {
@@ -408,7 +415,7 @@
     }
 
     if (s.yinyang_summary) {
-      html += '<div class="result-section yy-section"><h3>AI 能量綜述 · 陰陽消長</h3>';
+      html += '<div class="result-section yy-section"><h3>陰陽平衡 · 模擬資料分析</h3><p class="form-hint">此部分使用模擬及固定資料，並非最新官方開獎紀錄。</p>';
       html += '<div class="yy-summary-box">';
       html += '<p class="yy-summary-text">' + s.yinyang_summary + '</p>';
       if (s.yinyang_analysis) {
@@ -424,38 +431,34 @@
 
     html += '<div class="result-section"><h3>真太陽時修正說明</h3><p>' + (s.solar_time_note || '') + '</p></div>';
     html += '<div class="result-section"><h3>八字喜用神深度分析</h3><p>' + (s.bazi_analysis || '') + '</p></div>';
-    html += '<div class="result-section"><h3>初選號能量點評</h3><p>' + (s.initial_review || '') + '</p></div>';
+    if (data.initial_numbers.some(n => n > 0)) html += '<div class="result-section"><h3>初選號能量點評</h3><p>' + (s.initial_review || '') + '</p></div>';
 
-    html += '<div class="result-section"><h3>三枚核心幸運號</h3><div class="core-numbers">';
+    html += '<div class="result-section number-summary"><h3>三枚核心幸運號</h3><div class="core-numbers">';
     (s.core_numbers || []).forEach(function (n) {
       html += '<span class="core-num">' + n + '</span>';
     });
     html += '</div></div>';
 
-    html += '<div class="result-section"><h3>五組推薦注號矩陣（含五行解析）</h3>';
+    html += '<div class="result-section number-groups"><h3>五組參考號碼</h3><p class="form-hint">契合分是系統的娛樂性評分，不代表中獎概率；相同分數不表示同等勝算。</p>';
     (s.bet_groups || []).forEach(function (g, i) {
       html += '<div class="bet-group">';
       html += '<div class="bet-group-header">';
       html += '<span class="bet-group-title">第 ' + (i + 1) + ' 組</span>';
       if (typeof g.energy_score === 'number') {
-        html += '<span class="bet-group-energy" title="能量契合度 0–100">能量 ' + g.energy_score + '</span>';
+        html += '<span class="bet-group-energy">契合分 ' + g.energy_score + '/100</span>';
       }
       if (g.yinyang_ratio) {
         html += '<span class="bet-group-yy" title="奇偶比（陽:陰）">' + g.yinyang_ratio + '</span>';
       }
       html += '</div>';
       html += '<div class="bet-numbers">';
-      (g.numbers || []).forEach(function (num, idx) {
-        const meta = g.number_meta && g.number_meta[idx] ? g.number_meta[idx] : null;
-        const tag = meta && meta.label ? meta.label : '';
+      (g.numbers || []).forEach(function (num) {
         html += '<span class="bet-num">' + num;
-        if (tag) {
-          html += '<span class="bet-num-tag">' + tag + '</span>';
-        }
         html += '</span>';
       });
       html += '</div>';
-      if (g.desc) html += '<div class="bet-group-desc">' + g.desc + '</div>';
+      if (g.desc) html += '<details class="group-explanation"><summary>查看 AI 解讀</summary><div class="bet-group-desc">' + g.desc + '</div></details>';
+      html += '<button type="button" class="btn btn-ghost copy-group" data-group="' + i + '">複製第 ' + (i + 1) + ' 組</button>';
       html += '</div>';
     });
     html += '</div>';
@@ -468,7 +471,34 @@
     html += '</div></div>';
 
     resultsContent.innerHTML = html;
+    const summary = resultsContent.querySelector('.number-summary');
+    const groups = resultsContent.querySelector('.number-groups');
+    const explanations = document.createElement('details');
+    explanations.className = 'result-explanations';
+    const toggle = document.createElement('summary');
+    toggle.textContent = '查看完整命理解讀';
+    explanations.append(toggle);
+    Array.from(resultsContent.children).filter(el => el !== summary && el !== groups).forEach(el => explanations.append(el));
+    resultsContent.append(summary, groups, explanations);
+    const actions = document.createElement('div');
+    actions.className = 'result-actions';
+    actions.innerHTML = '<button type="button" class="btn btn-primary" id="copy-all">複製全部號碼</button><button type="button" class="btn btn-ghost" id="save-result">儲存號碼文字檔</button><p id="copy-feedback" role="status"></p>';
+    summary.append(actions);
+    const numberText = result.bet_groups.map((g,i) => '第 ' + (i+1) + ' 組：' + g.numbers.join(', ')).join('\n');
+    async function copy(text) {
+      const feedback = document.getElementById('copy-feedback');
+      try { await navigator.clipboard.writeText(text); feedback.textContent = '已複製'; }
+      catch { feedback.textContent = '無法存取剪貼簿，請使用「儲存號碼文字檔」。'; }
+    }
+    document.getElementById('copy-all').onclick = () => copy(numberText);
+    resultsContent.querySelectorAll('.copy-group').forEach(button => { button.onclick = () => copy(result.bet_groups[Number(button.dataset.group)].numbers.join(', ')); });
+    document.getElementById('save-result').onclick = () => {
+      const url = URL.createObjectURL(new Blob(['八字六合彩 · 時空合盤\n' + numberText + '\n僅供娛樂參考'], {type:'text/plain;charset=utf-8'}));
+      const link = document.createElement('a'); link.href = url; link.download = '合盤號碼.txt'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    };
     resultsPanel.classList.remove('hidden');
+    document.getElementById('results-heading').textContent = '合盤結果';
+    resultsPanel.focus({preventScroll:true});
 
     if (s.qimen) {
       var qmInline = document.getElementById('qm-result-inline');
@@ -478,160 +508,98 @@
       }
     }
 
-    resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    resultsPanel.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
   }
 
-  // ─── 能量推演儀式 ───
-  var RITUAL_STEPS = [
-    { text: '正在推演萬年曆，校準干支時空能量基準…', icon: '曆', color: '#5b9bd5' },
-    { text: '起梅花易數卦，體用生克感應中… 當期能量場已鎖定。', icon: '卦', color: '#6bc46d' },
-    { text: '撥動奇門遁甲盤，正在定位生門方位與空間動能…', icon: '門', color: '#c9a227' },
-    { text: '調取近 50 期開獎波動，正在執行「物極必反」陰陽平衡校驗…', icon: '陰陽', color: '#4ec9c9' },
-    { text: '融合個人八字喜用神，正在捕捉共振頻率最高的數字組合…', icon: '數', color: '#c94a4a' },
-  ];
-  var STEP_DURATION = 1800;
-  var MIN_CEREMONY_MS = RITUAL_STEPS.length * STEP_DURATION;
-  var CIRCUMFERENCE = 2 * Math.PI * 54;
+  const overlayEl = document.getElementById('ritual-overlay');
+  const cancelButton = document.getElementById('cancel-prediction');
+  const pageWrap = document.querySelector('.page-wrap');
+  const feedback = document.getElementById('form-feedback');
+  const submitButton = form.querySelector('[type="submit"]');
+  document.querySelector('.standalone-tools').before(resultsPanel);
+  form.addEventListener('invalid', event => {
+    const settings = document.getElementById('optional-settings');
+    if (settings.contains(event.target)) settings.open = true;
+  }, true);
+  let activeController = null;
+  let manualCurrentTime = false;
 
-  var overlayEl = document.getElementById('ritual-overlay');
-  var particlesEl = document.getElementById('ritual-particles');
-  var ringFgEl = document.getElementById('ritual-ring-fg');
-  var ritualTextEl = document.getElementById('ritual-text');
-  var ritualIconEl = document.getElementById('ritual-icon');
-  var ritualStepLabel = document.getElementById('ritual-step-label');
-
-  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
-
-  function spawnParticles() {
-    particlesEl.innerHTML = '';
-    for (var i = 0; i < 45; i++) {
-      var dot = document.createElement('span');
-      dot.className = 'ritual-particle';
-      var size = 1 + Math.random() * 2.5;
-      var left = Math.random() * 100;
-      var dur = 6 + Math.random() * 10;
-      var delay = Math.random() * 8;
-      var opacity = 0.15 + Math.random() * 0.45;
-      dot.style.cssText = 'width:' + size + 'px;height:' + size + 'px;'
-        + 'left:' + left + '%;bottom:-4px;'
-        + 'animation-duration:' + dur + 's;'
-        + 'animation-delay:' + delay + 's;'
-        + 'opacity:' + opacity + ';';
-      particlesEl.appendChild(dot);
-    }
+  function hongKongNow() {
+    const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Hong_Kong', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+    }).formatToParts(new Date()).map(p => [p.type, p.value]));
+    currentDateInput.value = parts.year + '-' + parts.month + '-' + parts.day;
+    currentHourInput.value = parts.hour; currentMinuteInput.value = parts.minute;
   }
+  hongKongNow();
+  [currentDateInput,currentHourInput,currentMinuteInput].forEach(el => el.addEventListener('input', () => { manualCurrentTime = true; }));
+  useNowBtn.addEventListener('click', () => { manualCurrentTime = false; hongKongNow(); });
 
-  function showOverlay() {
-    spawnParticles();
-    overlayEl.classList.remove('hidden', 'fade-out');
-    ringFgEl.style.strokeDashoffset = CIRCUMFERENCE;
-    ritualTextEl.classList.remove('visible');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function hideOverlay() {
-    overlayEl.classList.add('fade-out');
-    document.body.style.overflow = '';
-    setTimeout(function () {
-      overlayEl.classList.add('hidden');
-      overlayEl.classList.remove('fade-out');
-      particlesEl.innerHTML = '';
-    }, 650);
-  }
-
-  async function updateStep(idx) {
-    var step = RITUAL_STEPS[idx];
-    ritualTextEl.classList.remove('visible');
-    await sleep(300);
-    ritualTextEl.textContent = step.text;
-    ritualIconEl.textContent = step.icon;
-    ringFgEl.style.stroke = step.color;
-    var progress = (idx + 1) / RITUAL_STEPS.length;
-    ringFgEl.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
-    ritualStepLabel.textContent = (idx + 1) + ' / ' + RITUAL_STEPS.length;
-    ritualTextEl.classList.add('visible');
-  }
-
-  async function runCeremony(apiPromise) {
-    var startTime = Date.now();
-    var apiDone = false;
-    apiPromise.finally(function () { apiDone = true; });
-
-    var idx = 0;
-    while (true) {
-      await updateStep(idx % RITUAL_STEPS.length);
-      await sleep(STEP_DURATION);
-      idx++;
-      var elapsed = Date.now() - startTime;
-      if (idx >= RITUAL_STEPS.length && apiDone && elapsed >= MIN_CEREMONY_MS) break;
-    }
-
-    ritualTextEl.classList.remove('visible');
-    await sleep(250);
-    ritualTextEl.textContent = '能量推演完成';
-    ritualTextEl.classList.add('visible', 'ritual-complete-flash');
-    ringFgEl.style.strokeDashoffset = '0';
-    ritualStepLabel.textContent = '';
-    await sleep(800);
-  }
-
+  // Give every split date/time and number input an explicit accessible name.
+  [['draw','合盤開獎'],['hex-draw','梅花易數開獎'],['qm-draw','奇門遁甲開獎']].forEach(([prefix,label]) => {
+    ['date','hour','minute'].forEach((part,i) => document.getElementById(prefix+'-'+part).setAttribute('aria-label', label+['日期','小時（香港時間）','分鐘'][i]));
+  });
+  initialNumbersContainer.querySelectorAll('input').forEach((el,i) => {
+    el.setAttribute('aria-label', '第 '+(i+1)+' 個初選號碼（1 至 49）');
+    el.setAttribute('inputmode','numeric');
+  });
+  cancelButton.addEventListener('click', () => activeController?.abort());
+  overlayEl.addEventListener('keydown', e => {
+    if (e.key === 'Escape') activeController?.abort();
+    if (e.key === 'Tab') { e.preventDefault(); cancelButton.focus(); }
+  });
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
-    var data = getFormData();
-
-    showOverlay();
-    resultsPanel.classList.add('hidden');
-
-    var apiResult = null;
-    var apiError = null;
-    var apiPromise = fetch('/api/predict', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }).then(function (response) {
-      if (!response.ok) {
-        return response.json().catch(function () { return {}; }).then(function (d) {
-          throw new Error(d.error || d.message || 'HTTP ' + response.status);
-        });
-      }
-      return response.json();
-    }).then(function (r) {
-      apiResult = r;
-    }).catch(function (err) {
-      apiError = err;
-    });
-
-    await runCeremony(apiPromise);
-    hideOverlay();
-    await sleep(700);
-
-    if (apiError) {
-      var errorMsg = apiError.message || '未知錯誤';
-      var helpMsg = '';
-      if (errorMsg.indexOf('Failed to fetch') >= 0 || errorMsg.indexOf('NetworkError') >= 0) {
-        errorMsg = '無法連接到服務器';
-        helpMsg = '請確保後端服務器正在運行';
-      } else if (errorMsg.indexOf('XAI_API_KEY') >= 0) {
-        helpMsg = '請檢查環境變量中的 XAI_API_KEY 配置';
-      } else if (errorMsg.indexOf('xAI API') >= 0) {
-        helpMsg = '請檢查 API Key 是否正確';
-      } else {
-        helpMsg = '請查看瀏覽器控制台獲取詳細信息';
-      }
-      resultsContent.innerHTML =
-        '<div class="result-section">' +
-        '<h3 style="color: var(--red-light);">錯誤</h3>' +
-        '<p style="color: var(--ink-muted);">' + errorMsg + '</p>' +
-        (helpMsg ? '<p style="color: var(--ink-muted); font-size: 0.85rem; margin-top: 0.5rem;">' + helpMsg + '</p>' : '') +
-        '</div>';
-      resultsPanel.classList.remove('hidden');
-    } else if (apiResult) {
-      renderResults(data, apiResult);
+    if (activeController) return;
+    const entered = Array.from(initialNumbersContainer.querySelectorAll('input')).filter(el => el.value !== '');
+    if (entered.length && (entered.length !== 6 || new Set(entered.map(el => Number(el.value))).size !== 6)) {
+      document.getElementById('optional-settings').open = true;
+      feedback.textContent = '請填寫 6 個不重複的號碼，或全部留空。';
+      initialNumbersContainer.querySelector('input').focus(); return;
     }
+    if (!manualCurrentTime) hongKongNow();
+    const data = getFormData();
+    if (!data.birth_time || !data.birth_location) { feedback.textContent = '請完整填寫出生日期、時間和城市。'; return; }
+    if (manualCurrentTime && (!currentDateInput.value || !normalizeTimeParts(currentHourInput.value,currentMinuteInput.value))) {
+      document.getElementById('optional-settings').open = true;
+      feedback.textContent = '請完整填寫分析時間，或按「使用現在」。'; currentDateInput.focus(); return;
+    }
+    feedback.textContent = '';
+    if (!resultsPanel.classList.contains('hidden')) document.getElementById('results-heading').textContent = '上次合盤結果';
+    const controller = new AbortController(); activeController = controller;
+    let timedOut = false;
+    const started = Date.now();
+    const timer = setInterval(() => {
+      document.getElementById('ritual-step-label').textContent = '已等待 ' + Math.floor((Date.now()-started)/1000) + ' 秒';
+    },1000);
+    const timeout = setTimeout(() => { timedOut = true; controller.abort(); },120000);
+    document.getElementById('ritual-text').textContent = '正在生成分析，請稍候…';
+    document.getElementById('ritual-text').classList.add('visible');
+    document.getElementById('ritual-step-label').textContent = '已等待 0 秒';
+    pageWrap.inert = true; submitButton.disabled = true; form.setAttribute('aria-busy','true');
+    overlayEl.classList.remove('hidden'); document.body.style.overflow = 'hidden'; cancelButton.focus();
+    let result;
+    try {
+      const response = await fetch('/api/predict', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data), signal:controller.signal});
+      if (!response.ok) throw new Error('request_failed');
+      result = await response.json();
+      if (!Array.isArray(result.core_numbers) || !Array.isArray(result.bet_groups) || result.bet_groups.length !== 5 || result.bet_groups.some(g => !Array.isArray(g.numbers) || g.numbers.length !== 6)) throw new Error('invalid_result');
+    } catch (error) {
+      result = null;
+      feedback.textContent = controller.signal.aborted
+        ? (timedOut ? '分析等候逾時，資料已保留，請稍後重試。' : '已停止等待，資料已保留。')
+        : '暫時無法完成分析，資料已保留，請再次按「起盤推算」重試。';
+    } finally {
+      clearInterval(timer); clearTimeout(timeout); activeController = null;
+      overlayEl.classList.add('hidden'); document.body.style.overflow = '';
+      pageWrap.inert = false; submitButton.disabled = false; form.removeAttribute('aria-busy');
+      submitButton.focus();
+    }
+    if (result) renderResults(data,result);
   });
-
-  form.addEventListener('reset', function () {
-    resultsPanel.classList.add('hidden');
-    resultsContent.innerHTML = '';
+  form.addEventListener('reset', () => {
+    feedback.textContent = ''; resultsPanel.classList.add('hidden'); resultsContent.replaceChildren();
+    manualCurrentTime = false; setTimeout(hongKongNow,0);
   });
 })();

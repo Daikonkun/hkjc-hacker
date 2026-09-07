@@ -11,7 +11,7 @@
   --red-light: #c94a4a;
   --red-soft: #8b3a3a;
   --ink: #e8e0d8;
-  --ink-muted: #a09890;
+  --ink-muted: #b9afa5;
   --serif: "Noto Serif SC", "Source Han Serif SC", serif;
   --sans: "Noto Sans SC", "PingFang SC", sans-serif;
   --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
@@ -1022,4 +1022,36 @@ body {
   .qm-grid {
     width: 100%;
   }
+}
+
+/* Focused, accessible prediction flow. */
+.form-hint { color: var(--ink-muted); font-size: .875rem; line-height: 1.65; margin: .6rem 0; }
+.optional-settings, .result-explanations { border-top: 1px solid var(--border); margin-top: 1rem; }
+summary { cursor: pointer; color: var(--gold-light); padding: .85rem 0; line-height: 1.6; min-height: 44px; }
+.standalone-tools { margin: 1.5rem 0; }
+.standalone-tools > summary { padding: 1rem; border: 1px solid var(--border); border-radius: 6px; }
+.standalone-tools[open] > summary { margin-bottom: 1rem; }
+.main-content { display: flex; flex-direction: column; }
+.input-panel { order: 0; }
+.results-panel { order: 1; }
+.standalone-tools { order: 2; }
+.result-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+.result-actions p { width: 100%; margin: 0; }
+.number-groups .bet-numbers { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: .35rem; margin: .8rem 0; }
+.number-groups .bet-num { width: 100%; height: auto; min-height: 44px; aspect-ratio: 1; font-size: clamp(1.1rem,4.5vw,1.6rem); border-radius: 8px; }
+.bet-group-title, .bet-group-energy { font-size: .875rem; }
+.bet-group-desc { font-size: .95rem; line-height: 1.8; }
+.group-explanation summary { color: var(--ink-muted); font-size: .9rem; }
+.copy-group { margin-top: .5rem; min-height: 44px; }
+.form-row input { font-size: 1rem; }
+.btn { min-height: 44px; }
+:focus-visible, .form-row input:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; }
+.ritual-center { width: min(90vw,440px); }
+.ritual-center .form-hint { font-size: .8rem; margin-top: 1rem; }
+.ritual-ring { animation: none; }
+.ritual-step { color: var(--ink-muted); }
+.ritual-text { opacity: 1; }
+.btn:disabled { opacity: .55; cursor: wait; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
