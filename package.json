@@ -4,7 +4,9 @@
   "description": "八字六合彩時空合盤 - Vercel 靜態前端 + Serverless API",
   "scripts": {
     "dev": "vercel dev",
-    "lint": "echo \"no lint configured\""
+    "lint": "node --check app.js && node --check api/predict.js && node --check lib/methodology.js",
+    "test": "node --test tests/*.test.js",
+    "evaluate": "node scripts/evaluate.js"
   },
   "keywords": [
     "bazi",
@@ -14,6 +16,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "lunar-javascript": "^1.7.7"
+    "lunar-javascript": "1.7.7"
   }
 }

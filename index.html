@@ -28,7 +28,7 @@
     <header class="site-header">
       <div class="header-inner">
         <h1 class="site-title">八字六合彩 · 時空合盤</h1>
-        <p class="site-subtitle">真太陽時 · 喜用神 · 梅花易數 · 奇門遁甲 · 號碼矩陣</p>
+        <p class="site-subtitle">方法框架 v2 · 八字扶抑代理 · 梅花易數 · 可重現計分</p>
       </div>
     </header>
 
@@ -75,7 +75,7 @@
           <div class="form-row">
             <label for="birth-location">出生地點</label>
             <input type="text" id="birth-location" name="birth_location" placeholder="例如：香港、台北、倫敦" aria-describedby="location-help" required />
-            <p class="form-hint" id="location-help">請填寫出生城市及當地出生時間；跨時區請註明國家或地區。</p>
+            <p class="form-hint" id="location-help">按輸入的當地民用鐘點排盤，不作夏令時／真太陽時校正。城市僅作記錄，不猜測經度。</p>
           </div>
           <p class="form-hint">分析時間自動使用香港時間（UTC+8）。所有出生資料均為必填。</p>
           <details id="optional-settings" class="optional-settings">
@@ -179,8 +179,9 @@
 
       <section class="panel qimen-panel">
         <div class="panel-head">
-          <h2>奇門遁甲 · 時空排盤</h2>
+          <h2>奇門 · 舊版簡化示意（不參與預測）</h2>
         </div>
+        <p class="form-hint">此工具並非完整時家奇門排盤，特殊格局未經獨立核對，只保留作示意，不納入 v2 號碼計分。</p>
         <div class="hexagram-form">
           <div class="form-row">
             <label>開獎時刻</label>
@@ -218,6 +219,6 @@
       <p>僅供娛樂參考 · 理性投注</p>
     </footer>
   </div>
-  <script src="app.js"></script>
+  <script src="app.js?v=2.0.0"></script>
 </body>
 </html>

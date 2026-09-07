@@ -151,7 +151,7 @@
       birth_location: birthLocation,
       current_time: currentDateTime || 'Now',
       draw_datetime: drawDateTime || undefined,
-      initial_numbers: initialNumbers.length >= 6 ? initialNumbers.slice(0, 6) : [0, 0, 0, 0, 0, 0]
+      initial_numbers: initialNumbers
     };
   }
 
@@ -203,6 +203,7 @@
     html += '<p><strong>上卦：</strong>' + h.upper_gua.name + '（' + h.upper_gua.wuxing + '）</p>';
     html += '<p><strong>下卦：</strong>' + h.lower_gua.name + '（' + h.lower_gua.wuxing + '）</p>';
     html += '<p><strong>動爻：</strong>第 ' + h.change_line + ' 爻</p>';
+    if (h.mutual_hexagram) html += '<p>互卦：' + h.mutual_hexagram.upper.name + '上' + h.mutual_hexagram.lower.name + '下；變卦：' + h.changed_hexagram.upper.name + '上' + h.changed_hexagram.lower.name + '下（僅供解讀，不另加分）。</p>';
     html += '<p><strong>體卦：</strong>' + h.ti_gua.name + '（' + h.ti_gua.wuxing + '）</p>';
     html += '<p><strong>用卦：</strong>' + h.yong_gua.name + '（' + h.yong_gua.wuxing + '）</p>';
     html += '<p><strong>體用生克：</strong>' + h.relation_label + ' — ' + h.relation_fortune + '</p>';
@@ -381,6 +382,18 @@
     const s = escapeValues(result);
     let html = '';
 
+    if (s.methodology) {
+      html += '<div class="result-section methodology-summary"><h3>方法框架 v' + s.methodology.version + '</h3>';
+      html += '<p>八字 60% · 梅花 30% · 納音 10%。固定規則計算，AI 不選號、不評分。</p>';
+      html += '<p>' + s.methodology.number_mapping + '</p><p>' + s.methodology.context_source + '：' + s.methodology.context_time + '</p>';
+      html += '<p>' + s.methodology.evaluation_status + '。奇門與模擬歷史已退出計分。</p>';
+      html += '<details><summary>查看方法、覆蓋率與限制</summary>';
+      html += '<p>組合覆蓋 ' + s.portfolio.unique_numbers + ' 個不同號碼；兩組最多重複 ' + s.portfolio.max_pair_overlap + ' 個。核心號不強制加入每一組。</p>';
+      html += '<p>重現編號：' + s.prediction_id + '</p>';
+      (s.warnings || []).forEach(w => { html += '<p class="form-hint">' + w + '</p>'; });
+      html += '</details></div>';
+    }
+
     if (s.nayin) {
       html += '<div class="result-section nayin-section">';
       html += '<h3>納音能量基調</h3>';
@@ -403,6 +416,7 @@
       html += '<p><strong>開獎時刻：</strong>' + (h.draw_datetime || '') + '</p>';
       html += '<p><strong>體卦：</strong>' + h.ti_gua.name + '（' + h.ti_gua.wuxing + '） · <strong>用卦：</strong>' + h.yong_gua.name + '（' + h.yong_gua.wuxing + '）</p>';
       html += '<p><strong>體用生克：</strong>' + h.relation_label + ' — ' + h.relation_fortune + '</p>';
+      if (h.mutual_hexagram) html += '<p>互卦：' + h.mutual_hexagram.upper.name + '上' + h.mutual_hexagram.lower.name + '下；變卦：' + h.changed_hexagram.upper.name + '上' + h.changed_hexagram.lower.name + '下（不另加分）。</p><p>' + h.leap_month_convention + '</p>';
       html += '</div></div>';
     }
 
@@ -415,7 +429,7 @@
     }
 
     if (s.yinyang_summary) {
-      html += '<div class="result-section yy-section"><h3>陰陽平衡 · 模擬資料分析</h3><p class="form-hint">此部分使用模擬及固定資料，並非最新官方開獎紀錄。</p>';
+      html += '<div class="result-section yy-section"><h3>陰陽比例 · 描述而非預測</h3>';
       html += '<div class="yy-summary-box">';
       html += '<p class="yy-summary-text">' + s.yinyang_summary + '</p>';
       if (s.yinyang_analysis) {
@@ -429,8 +443,9 @@
       html += '</div></div>';
     }
 
-    html += '<div class="result-section"><h3>真太陽時修正說明</h3><p>' + (s.solar_time_note || '') + '</p></div>';
-    html += '<div class="result-section"><h3>八字喜用神深度分析</h3><p>' + (s.bazi_analysis || '') + '</p></div>';
+    html += '<div class="result-section"><h3>時間基準與限制</h3><p>' + (s.solar_time_note || '') + '</p></div>';
+    html += '<div class="result-section"><h3>八字排盤 · 扶抑代理分析</h3><p>' + (s.bazi_analysis || '') + '</p></div>';
+    if (s.ai_reading) html += '<div class="result-section"><h3>AI 補充解讀（不參與計分）</h3><p>' + s.ai_reading + '</p></div>';
     if (data.initial_numbers.some(n => n > 0)) html += '<div class="result-section"><h3>初選號能量點評</h3><p>' + (s.initial_review || '') + '</p></div>';
 
     html += '<div class="result-section number-summary"><h3>三枚核心幸運號</h3><div class="core-numbers">';
@@ -457,13 +472,13 @@
         html += '</span>';
       });
       html += '</div>';
-      if (g.desc) html += '<details class="group-explanation"><summary>查看 AI 解讀</summary><div class="bet-group-desc">' + g.desc + '</div></details>';
+      if (g.desc) html += '<details class="group-explanation"><summary>查看規則計分明細</summary><div class="bet-group-desc">' + g.desc + '</div></details>';
       html += '<button type="button" class="btn btn-ghost copy-group" data-group="' + i + '">複製第 ' + (i + 1) + ' 組</button>';
       html += '</div>';
     });
     html += '</div>';
 
-    html += '<div class="result-section"><h3>今日博弈決策方案</h3>';
+    html += '<div class="result-section"><h3>使用限制</h3>';
     html += '<div class="strategy-box">';
     html += '<p><strong>運勢定性：</strong>' + (s.strategy && s.strategy.fortune ? s.strategy.fortune : '—') + '</p>';
     html += '<p><strong>黃金下注時段：</strong>' + (s.strategy && s.strategy.period ? s.strategy.period : '—') + '</p>';
@@ -473,16 +488,18 @@
     resultsContent.innerHTML = html;
     const summary = resultsContent.querySelector('.number-summary');
     const groups = resultsContent.querySelector('.number-groups');
+    const methodology = resultsContent.querySelector('.methodology-summary');
     const explanations = document.createElement('details');
     explanations.className = 'result-explanations';
     const toggle = document.createElement('summary');
     toggle.textContent = '查看完整命理解讀';
     explanations.append(toggle);
-    Array.from(resultsContent.children).filter(el => el !== summary && el !== groups).forEach(el => explanations.append(el));
+    Array.from(resultsContent.children).filter(el => el !== summary && el !== groups && el !== methodology).forEach(el => explanations.append(el));
     resultsContent.append(summary, groups, explanations);
+    if (methodology) resultsContent.prepend(methodology);
     const actions = document.createElement('div');
     actions.className = 'result-actions';
-    actions.innerHTML = '<button type="button" class="btn btn-primary" id="copy-all">複製全部號碼</button><button type="button" class="btn btn-ghost" id="save-result">儲存號碼文字檔</button><p id="copy-feedback" role="status"></p>';
+    actions.innerHTML = '<button type="button" class="btn btn-primary" id="copy-all">複製全部號碼</button><button type="button" class="btn btn-ghost" id="save-result">儲存號碼文字檔</button><button type="button" class="btn btn-ghost" id="save-evidence">匯出驗證紀錄 JSON</button><p class="form-hint">JSON 包含出生資料，請私下保存；下載紀錄不代表開獎前已獲第三方存證。</p><p id="copy-feedback" role="status"></p>';
     summary.append(actions);
     const numberText = result.bet_groups.map((g,i) => '第 ' + (i+1) + ' 組：' + g.numbers.join(', ')).join('\n');
     async function copy(text) {
@@ -491,6 +508,11 @@
       catch { feedback.textContent = '無法存取剪貼簿，請使用「儲存號碼文字檔」。'; }
     }
     document.getElementById('copy-all').onclick = () => copy(numberText);
+    document.getElementById('save-evidence').onclick = () => {
+      const record = {exported_at:new Date().toISOString(), input:data, result};
+      const url = URL.createObjectURL(new Blob([JSON.stringify(record,null,2)], {type:'application/json'}));
+      const link = document.createElement('a'); link.href = url; link.download = 'methodology-' + (result.prediction_id || 'demo') + '.json'; link.click(); setTimeout(() => URL.revokeObjectURL(url),1000);
+    };
     resultsContent.querySelectorAll('.copy-group').forEach(button => { button.onclick = () => copy(result.bet_groups[Number(button.dataset.group)].numbers.join(', ')); });
     document.getElementById('save-result').onclick = () => {
       const url = URL.createObjectURL(new Blob(['八字六合彩 · 時空合盤\n' + numberText + '\n僅供娛樂參考'], {type:'text/plain;charset=utf-8'}));
