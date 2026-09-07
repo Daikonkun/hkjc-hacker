@@ -108,6 +108,7 @@ async function callOpenRouter(userPrompt) {
     },
     body: JSON.stringify({
       model,
+      response_format: { type: 'json_object' },
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
